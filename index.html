@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChequeIn · Sales OS</title>
+<meta name="description" content="ChequeIn Sales OS — the operating system for free-payroll sales: target, qualify, activate, earn.">
+<meta name="theme-color" content="#0b1d17">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">C</div>
+      <div>
+        <div class="brand-name">ChequeIn</div>
+        <div class="brand-sub">Sales OS</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <a href="#/today" data-route="today" class="nav-item">
+        <span class="nav-ico" data-icon="sun"></span><span>Today</span><span class="nav-count" id="nav-due"></span>
+      </a>
+      <a href="#/pipeline" data-route="pipeline" class="nav-item">
+        <span class="nav-ico" data-icon="flow"></span><span>Pipeline</span><span class="nav-count" id="nav-pipeline"></span>
+      </a>
+      <a href="#/compliance" data-route="compliance" class="nav-item">
+        <span class="nav-ico" data-icon="shield"></span><span>Compliance gate</span><span class="nav-count" id="nav-compliance"></span>
+      </a>
+      <a href="#/playbook" data-route="playbook" class="nav-item">
+        <span class="nav-ico" data-icon="book"></span><span>Playbook</span>
+      </a>
+      <a href="#/numbers" data-route="numbers" class="nav-item">
+        <span class="nav-ico" data-icon="chart"></span><span>Numbers</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-label">The one number</div>
+      <div class="sidebar-card-value" id="sidebar-rev">₦31,905</div>
+      <div class="sidebar-card-meta" id="sidebar-rev-meta">per month · 106 employees</div>
+      <a href="#/numbers" class="sidebar-link">Grow revenue per employee →</a>
+    </div>
+
+    <div class="sidebar-foot">
+      <button class="ghost-btn" id="btn-settings-sheet" type="button">Settings &amp; data</button>
+      <div class="muted tiny">Local-first · saves in this browser</div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="topbar">
+      <button class="icon-btn mobile-only" id="btn-menu" aria-label="Menu" type="button">☰</button>
+      <div class="crumb" id="crumb">Today</div>
+      <div class="topbar-right">
+        <span class="week-chip" id="week-chip">Week 1</span>
+        <button class="primary-btn" id="btn-quick-add" type="button">+ Add employer</button>
+      </div>
+    </div>
+
+    <div id="view" class="view"></div>
+  </main>
+</div>
+
+<!-- Employer drawer -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="Employer detail"></aside>
+
+<!-- Add employer panel -->
+<div class="scrim" id="add-scrim" hidden></div>
+<section class="sheet add-sheet" id="add-sheet" hidden aria-label="Add employer">
+  <div class="sheet-head">
+    <div>
+      <div class="eyebrow">New employer</div>
+      <h2>Who are you going after?</h2>
+    </div>
+    <button class="icon-btn" data-close="add" type="button" aria-label="Close">✕</button>
+  </div>
+  <form id="add-form" class="form">
+    <label class="field">
+      <span>Employer name</span>
+      <input name="name" required placeholder="e.g. Greenfield Academy, Ikeja" autocomplete="off">
+    </label>
+    <div class="field-row">
+      <label class="field">
+        <span>Contact person</span>
+        <input name="contact" placeholder="Mrs. Adeyemi" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>Role</span>
+        <input name="role" placeholder="Proprietor / Admin" autocomplete="off">
+      </label>
+    </div>
+    <div class="field-row">
+      <label class="field">
+        <span>Phone / WhatsApp</span>
+        <input name="phone" placeholder="080..." inputmode="tel" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>Staff count</span>
+        <input name="staff" type="number" min="0" placeholder="e.g. 35" inputmode="numeric">
+      </label>
+    </div>
+    <div class="field-row">
+      <label class="field">
+        <span>Segment</span>
+        <select name="segment">
+          <option>School</option>
+          <option>Hospital / clinic</option>
+          <option>Hospitality</option>
+          <option>Retail / distribution</option>
+          <option>Services / agency</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>City / area</span>
+        <input name="city" placeholder="Ikeja, Lagos" autocomplete="off">
+      </label>
+    </div>
+    <label class="field">
+      <span>How did you find them? <em class="muted">(optional)</em></span>
+      <input name="source" placeholder="Google Maps / referral / school association" autocomplete="off">
+    </label>
+    <label class="check-line">
+      <input type="checkbox" name="startSequence" checked>
+      <span>Start the 21-day outreach cadence and put the first WhatsApp in Today.</span>
+    </label>
+    <div class="form-actions">
+      <button type="button" class="ghost-btn" data-close="add">Cancel</button>
+      <button type="submit" class="primary-btn">Add to pipeline</button>
+    </div>
+  </form>
+</section>
+
+<!-- Bulk add -->
+<section class="sheet" id="bulk-sheet" hidden aria-label="Paste targets">
+  <div class="sheet-head">
+    <div>
+      <div class="eyebrow">Batch entry</div>
+      <h2>Paste a target list</h2>
+    </div>
+    <button class="icon-btn" data-close="bulk" type="button" aria-label="Close">✕</button>
+  </div>
+  <p class="muted">One employer per line: <code>Name, Contact, Phone, Staff, Area</code>. Only the name is required. The cadence starts for every row.</p>
+  <form id="bulk-form">
+    <textarea name="rows" rows="8" class="textarea" placeholder="Greenfield Academy, Mrs. Adeyemi, 08031234567, 35, Ikeja
+St. Paul's College, Mr. Okafor, 08087654321, 52, Surulere"></textarea>
+    <div class="form-actions">
+      <button type="button" class="ghost-btn" data-close="bulk">Cancel</button>
+      <button type="submit" class="primary-btn">Add all</button>
+    </div>
+  </form>
+</section>
+
+<!-- Settings / data sheet -->
+<section class="sheet" id="settings-sheet" hidden aria-label="Settings and data">
+  <div class="sheet-head">
+    <div>
+      <div class="eyebrow">Settings</div>
+      <h2>Your data</h2>
+    </div>
+    <button class="icon-btn" data-close="settings" type="button" aria-label="Close">✕</button>
+  </div>
+  <p class="muted">Everything lives in this browser. Export regularly if you're sharing the system with a team.</p>
+  <div class="settings-grid">
+    <div class="settings-block">
+      <h3>Export</h3>
+      <p class="muted small">Download a JSON backup of the pipeline, logs and targets.</p>
+      <button class="ghost-btn" id="btn-export" type="button">Download backup</button>
+    </div>
+    <div class="settings-block">
+      <h3>Import</h3>
+      <p class="muted small">Restore a backup. This replaces what's here.</p>
+      <label class="ghost-btn file-btn">Choose file<input type="file" id="file-import" accept="application/json" hidden></label>
+    </div>
+    <div class="settings-block">
+      <h3>Reset</h3>
+      <p class="muted small">Back to the seeded ChequeIn starting point.</p>
+      <button class="ghost-btn danger-text" id="btn-reset" type="button">Reset to baseline</button>
+    </div>
+  </div>
+  <div class="settings-block">
+    <h3>Revenue assumption</h3>
+    <p class="muted small">Used in the Numbers model. Baseline is about ₦300 per employee per month.</p>
+    <label class="inline-field">
+      <span>₦</span>
+      <input type="number" id="rev-per-emp" min="0" step="10" value="300">
+      <span>per active employee / month</span>
+    </label>
+  </div>
+</section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,3271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ChequeIn · Sales OS</title>
+<meta name="description" content="ChequeIn Sales OS — the operating system for free-payroll sales: target, qualify, activate, earn.">
+<meta name="theme-color" content="#0b1d17">
+<style>
+/* ChequeIn Sales OS — styles */
+:root {
+  --ink: #0f241e;
+  --ink-soft: #33453d;
+  --muted: #6e7a72;
+  --faint: #98a29b;
+  --bg: #f4f2ec;
+  --card: #fffdf8;
+  --line: #e5dfd2;
+  --line-strong: #d7d0bf;
+  --green: #175f46;
+  --green-2: #1f8a63;
+  --mint: #e5f1e9;
+  --cream: #f8f4e8;
+  --gold: #a9772a;
+  --gold-bg: #f8eed8;
+  --red: #a6412d;
+  --red-bg: #f8e8e3;
+  --blue: #2f5f8a;
+  --blue-bg: #e8eff6;
+  --shadow: 0 1px 2px rgba(15, 36, 30, .05), 0 8px 24px -18px rgba(15, 36, 30, .25);
+  --serif: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Inter, Roboto, sans-serif;
+  --mono: "SF Mono", ui-monospace, Menlo, Consolas, monospace;
+  --radius: 16px;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 14.5px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+body.locked { overflow: hidden; }
+[hidden] { display: none !important; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; }
+a { color: inherit; }
+h1, h2, h3, h4 { margin: 0; font-weight: 600; letter-spacing: -.015em; }
+p { margin: 0; }
+ul { margin: 0; padding: 0; }
+strong { font-weight: 650; }
+em { font-style: normal; }
+.muted { color: var(--muted); }
+.tiny { font-size: 11px; line-height: 1.45; }
+.small { font-size: 12.5px; }
+.note { margin-top: 6px; }
+.ico { width: 16px; height: 16px; flex: none; }
+.good { color: var(--green-2); }
+.warn { color: var(--gold); }
+.bad { color: var(--red); }
+.danger-text { color: var(--red); }
+
+/* ---------------------------------------------------------------- shell */
+.app { display: flex; min-height: 100vh; }
+.sidebar {
+  position: fixed; inset: 0 auto 0 0; width: 252px;
+  display: flex; flex-direction: column;
+  padding: 26px 16px 18px;
+  background: radial-gradient(120% 90% at 10% 0%, #163b2e 0%, #0b1d17 58%, #08150f 100%);
+  color: var(--cream); z-index: 40;
+}
+.brand { display: flex; align-items: center; gap: 11px; padding: 0 8px 26px; }
+.brand-mark {
+  width: 34px; height: 34px; border-radius: 10px;
+  display: grid; place-items: center;
+  background: var(--cream); color: #0b1d17;
+  font-family: var(--serif); font-size: 21px; font-weight: 700;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
+}
+.brand-name { font-family: var(--serif); font-size: 19px; letter-spacing: .01em; line-height: 1; }
+.brand-sub { font-size: 10px; text-transform: uppercase; letter-spacing: .2em; color: #92a89b; margin-top: 5px; }
+.nav { display: flex; flex-direction: column; gap: 3px; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 10px; border-radius: 9px;
+  color: #c7d2c8; text-decoration: none; font-size: 13.5px;
+  transition: background .15s ease, color .15s ease;
+}
+.nav-item:hover { background: rgba(255,255,255,.06); color: #fff; }
+.nav-item.active { background: rgba(248, 244, 232, .12); color: #fff; }
+.nav-ico { width: 18px; height: 18px; display: grid; place-items: center; opacity: .8; }
+.nav-count {
+  margin-left: auto; min-width: 20px; text-align: center;
+  font-size: 10.5px; font-weight: 650; color: #0b1d17;
+  background: #e9e2cc; border-radius: 20px; padding: 1px 6px;
+}
+.nav-count:empty { display: none; }
+.sidebar-card {
+  margin-top: auto; padding: 15px; border-radius: 13px;
+  background: rgba(255,255,255,.055); border: 1px solid rgba(248,244,232,.12);
+}
+.sidebar-card-label { font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: #93a99c; }
+.sidebar-card-value { font-family: var(--serif); font-size: 27px; margin-top: 5px; letter-spacing: -.02em; }
+.sidebar-card-meta { font-size: 11px; color: #9db1a4; margin-top: 2px; }
+.sidebar-link { display: inline-block; margin-top: 10px; font-size: 11.5px; color: #d9ceb2; text-decoration: none; }
+.sidebar-link:hover { text-decoration: underline; }
+.sidebar-foot { padding: 16px 4px 0; display: flex; flex-direction: column; gap: 8px; }
+.sidebar-foot .ghost-btn { border-color: rgba(248,244,232,.2); color: #d9d2c2; }
+.sidebar-foot .ghost-btn:hover { background: rgba(255,255,255,.08); }
+.sidebar-foot .muted { color: #7e9187; }
+
+.main { margin-left: 252px; width: calc(100% - 252px); }
+.topbar {
+  position: sticky; top: 0; z-index: 20;
+  height: 62px; display: flex; align-items: center; gap: 14px;
+  padding: 0 36px;
+  background: rgba(244, 242, 236, .86);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(213, 206, 191, .55);
+}
+.crumb { font-size: 12px; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 12px; }
+.week-chip {
+  font-size: 11px; color: var(--muted); border: 1px solid var(--line);
+  background: var(--card); padding: 5px 10px; border-radius: 20px;
+}
+.view { max-width: 1320px; margin: 0 auto; padding: 26px 36px 90px; }
+
+/* ---------------------------------------------------------------- buttons */
+.primary-btn {
+  background: var(--green); color: #fff; border: 1px solid var(--green);
+  padding: 9px 15px; border-radius: 9px; font-size: 12.5px; font-weight: 600;
+  transition: background .15s ease, transform .05s ease;
+}
+.primary-btn:hover { background: #0f4b37; }
+.primary-btn:active { transform: translateY(1px); }
+.primary-btn:disabled { background: #c9c2b0; border-color: #c9c2b0; color: #fff; cursor: not-allowed; }
+.primary-btn.wide { width: 100%; margin-top: 12px; }
+.ghost-btn {
+  background: transparent; border: 1px solid var(--line-strong); color: var(--ink-soft);
+  padding: 8px 13px; border-radius: 9px; font-size: 12.5px; font-weight: 550;
+  display: inline-flex; align-items: center; gap: 6px; text-decoration: none;
+}
+.ghost-btn:hover { background: #f3efe4; border-color: #c6bea9; }
+.link-btn {
+  background: none; border: 0; padding: 0; color: var(--green);
+  font-size: 12.5px; font-weight: 600; display: inline-flex; align-items: center; gap: 6px;
+}
+.link-btn:hover { text-decoration: underline; }
+.link-btn.light { color: #e8dfc8; }
+.link-btn .ico { width: 14px; height: 14px; }
+.icon-btn {
+  border: 1px solid transparent; background: transparent; color: var(--muted);
+  width: 32px; height: 32px; border-radius: 8px; font-size: 15px;
+}
+.icon-btn:hover { background: #eae5d8; color: var(--ink); }
+.light-btn {
+  background: var(--cream); color: #10241e; border: 0;
+  padding: 10px 16px; border-radius: 9px; font-size: 12.5px; font-weight: 650;
+}
+.light-btn:hover { background: #fff; }
+.copy-btn {
+  background: #f0ebdf; border: 1px solid #e0d8c5; color: var(--ink-soft);
+  border-radius: 7px; padding: 4px 10px; font-size: 11px; font-weight: 600;
+}
+.copy-btn:hover { background: #e9e2d2; }
+
+/* ---------------------------------------------------------------- structure */
+.page-head {
+  display: flex; align-items: flex-end; gap: 24px; justify-content: space-between;
+  margin: 6px 0 22px;
+}
+.page-head h1 { font-family: var(--serif); font-size: 40px; line-height: 1.02; letter-spacing: -.025em; margin: 6px 0 8px; }
+.page-head p { color: var(--muted); max-width: 720px; font-size: 13.5px; }
+.head-actions { display: flex; gap: 8px; align-items: center; flex: none; }
+.eyebrow {
+  font-size: 9.5px; font-weight: 700; letter-spacing: .17em;
+  text-transform: uppercase; color: var(--muted);
+}
+.card {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: var(--radius); padding: 20px; box-shadow: var(--shadow);
+}
+.card-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.card-head h2 { font-size: 18px; margin-top: 3px; }
+.card-head .pill { flex: none; }
+.pill {
+  font-size: 10.5px; font-weight: 600; color: var(--ink-soft);
+  background: #f0ebdf; border: 1px solid #e4dccb; padding: 3px 9px; border-radius: 20px;
+  white-space: nowrap;
+}
+.grid-main { display: grid; grid-template-columns: minmax(0, 1fr) 336px; gap: 18px; align-items: start; }
+.col { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+.grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; align-items: start; margin-bottom: 18px; }
+.card + .card { margin-top: 0; }
+.card blockquote { margin: 0; }
+
+/* ---------------------------------------------------------------- hero */
+.hero {
+  position: relative; overflow: hidden;
+  display: grid; grid-template-columns: 1.35fr 1fr; gap: 26px;
+  padding: 30px 32px;
+  border-radius: 20px; color: var(--cream);
+  background:
+    radial-gradient(100% 130% at 88% 0%, rgba(64, 135, 104, .45) 0%, transparent 58%),
+    linear-gradient(135deg, #0c211a 0%, #123729 55%, #0d281f 100%);
+  box-shadow: 0 22px 44px -32px rgba(9, 28, 22, .9);
+  margin-bottom: 18px;
+}
+.hero::after {
+  content: ""; position: absolute; right: -80px; bottom: -130px;
+  width: 320px; height: 320px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(231, 216, 178, .16), transparent 65%);
+  pointer-events: none;
+}
+.hero-eyebrow { font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: #a9bdad; }
+.hero h1 { font-family: var(--serif); font-size: 48px; line-height: .98; letter-spacing: -.03em; margin: 12px 0 12px; font-weight: 500; }
+.hero-sub { color: #b9c8bd; max-width: 460px; font-size: 13px; line-height: 1.55; }
+.hero-actions { display: flex; align-items: center; gap: 18px; margin-top: 20px; }
+.hero-stats {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1px;
+  background: rgba(248, 244, 232, .14); border: 1px solid rgba(248, 244, 232, .14);
+  border-radius: 12px; overflow: hidden; align-self: stretch;
+}
+.hero-stat {
+  background: rgba(9, 26, 21, .5); padding: 15px 16px;
+  display: flex; flex-direction: column; gap: 2px; min-height: 84px; justify-content: center;
+}
+.hero-stat span { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #9db2a5; }
+.hero-stat strong { font-family: var(--serif); font-size: 25px; font-weight: 500; line-height: 1.1; }
+.hero-stat em { font-size: 10.5px; color: #8ea396; }
+.hero-stat:nth-child(2) strong, .hero-stat:nth-child(3) strong { font-size: 20px; }
+
+/* ---------------------------------------------------------------- today */
+.queue-group { margin-top: 8px; }
+.queue-title {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); padding: 8px 0 2px;
+}
+.queue-title.overdue { color: var(--red); }
+.queue-title span { font-size: 10px; background: #f0ebdf; color: var(--ink-soft); padding: 0 6px; border-radius: 10px; letter-spacing: 0; }
+.queue-title.overdue span { background: var(--red-bg); color: var(--red); }
+.action-row {
+  display: grid; grid-template-columns: 46px minmax(0, 1fr) auto auto;
+  gap: 12px; align-items: center;
+  padding: 12px 0; border-top: 1px solid #efeade;
+}
+.queue-group:first-of-type .action-row:first-of-type { border-top: 0; }
+.type-chip {
+  font-family: var(--mono); font-size: 8.5px; font-weight: 700; letter-spacing: .04em;
+  text-align: center; padding: 5px 0; border-radius: 6px; width: 46px;
+  background: #eee9dd; color: #5b665e;
+}
+.tc-whatsapp { background: #dff0e5; color: #1a6b47; }
+.tc-call { background: #e3ebf4; color: #2c5a83; }
+.tc-email { background: #ece6f4; color: #5e4a80; }
+.tc-session { background: #f6e8d3; color: #8d5a1c; }
+.tc-review { background: #f0e6d0; color: #7c5a25; }
+.action-main { min-width: 0; cursor: pointer; }
+.action-title { font-size: 13px; font-weight: 600; line-height: 1.3; }
+.action-meta { font-size: 11.5px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.has-script { color: var(--green); }
+.due { font-size: 10.5px; font-weight: 600; color: var(--muted); white-space: nowrap; }
+.due.overdue { color: var(--red); }
+.due.today { color: var(--green); }
+.action-btns { display: flex; gap: 5px; }
+.done-btn {
+  border: 1px solid #cfe0d3; background: #f0f7f1; color: #1c6b49;
+  padding: 4px 10px; border-radius: 6px; font-size: 10.5px; font-weight: 650;
+}
+.done-btn:hover { background: #dff0e3; }
+.snooze-btn {
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+  padding: 4px 7px; border-radius: 6px; font-size: 10px;
+}
+.snooze-btn:hover { background: #f3efe4; }
+.queue-foot { border-top: 1px solid #efeade; margin-top: 8px; padding-top: 10px; font-size: 11.5px; color: var(--muted); display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.counter-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.counter { border: 1px solid #ece6d8; border-radius: 10px; padding: 10px 12px; background: #fbf8f0; }
+.counter-label { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.counter-row { display: flex; align-items: center; gap: 10px; margin-top: 5px; }
+.step-btn {
+  width: 24px; height: 24px; border-radius: 6px; border: 1px solid var(--line-strong);
+  background: #fff; color: var(--ink-soft); font-size: 14px; line-height: 1; display: grid; place-items: center;
+}
+.step-btn:hover { background: #efe9da; }
+.counter-val { font-family: var(--serif); font-size: 22px; min-width: 26px; text-align: center; }
+.counter-note { margin-top: 10px; }
+.metric-list { display: flex; flex-direction: column; gap: 10px; }
+.metric-top { display: flex; justify-content: space-between; align-items: baseline; font-size: 12px; margin-bottom: 4px; }
+.metric-top strong { font-family: var(--serif); font-size: 16px; font-weight: 500; }
+.metric-top i { font-family: var(--sans); font-style: normal; font-size: 10.5px; color: var(--muted); }
+.bar { height: 5px; background: #ece6d9; border-radius: 10px; overflow: hidden; }
+.bar span { display: block; height: 100%; background: #b9ad8f; border-radius: 10px; }
+.bar.good span { background: var(--green-2); }
+.bar.warn span { background: var(--gold); }
+.bar.bad span { background: var(--red); }
+.offer-card { background: linear-gradient(180deg, #fffdf6, #f7f1e1); }
+.offer-card blockquote {
+  font-family: var(--serif); font-size: 17px; line-height: 1.35; color: #24382f;
+  margin: 8px 0 14px; letter-spacing: -.01em;
+}
+.checklist { display: flex; flex-direction: column; gap: 3px; }
+.check-item { display: flex; gap: 9px; align-items: flex-start; padding: 7px 0; font-size: 12.5px; cursor: pointer; border-bottom: 1px solid #f2ede1; }
+.check-item:last-child { border-bottom: 0; }
+.check-item input { accent-color: var(--green); margin-top: 2px; }
+.check-item input:checked + span { color: var(--faint); text-decoration: line-through; }
+.alert-card { border-color: #ead8c2; background: #fdf7ec; }
+.alert-head { display: flex; gap: 10px; margin-bottom: 10px; }
+.alert-head .ico { color: var(--gold); margin-top: 2px; }
+.alert-head p { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.alert-card .ghost-btn { border-color: #dccbae; background: #fffaf0; }
+.empty { text-align: center; padding: 26px 12px 14px; }
+.empty-icon {
+  width: 40px; height: 40px; border-radius: 50%; background: var(--mint); color: var(--green);
+  display: grid; place-items: center; margin: 0 auto 10px;
+}
+.empty h3 { font-family: var(--serif); font-size: 20px; margin-bottom: 4px; }
+.empty p { color: var(--muted); font-size: 12.5px; max-width: 340px; margin: 0 auto 14px; }
+.small-empty { padding: 16px; }
+
+/* ---------------------------------------------------------------- pipeline */
+.source-card { margin-bottom: 18px; }
+.source-card > p { font-size: 12.5px; max-width: 760px; margin-bottom: 14px; }
+.source-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.source-link {
+  position: relative; display: flex; flex-direction: column; gap: 2px;
+  padding: 11px 30px 11px 12px; border-radius: 9px;
+  border: 1px solid #eae3d3; background: #fbf8f0; text-decoration: none;
+  transition: border-color .15s ease, background .15s ease;
+}
+.source-link:hover { border-color: #cdc1a5; background: #f6f0df; }
+.source-link strong { font-size: 12px; }
+.source-link span { font-size: 10.5px; color: var(--muted); line-height: 1.35; }
+.source-link .ico { position: absolute; right: 10px; top: 14px; width: 13px; height: 13px; color: var(--faint); }
+.source-tip {
+  display: flex; gap: 8px; align-items: flex-start; margin-top: 12px;
+  background: var(--mint); border-radius: 8px; padding: 9px 12px; font-size: 11.5px; color: #24553f;
+}
+.source-tip .ico { width: 14px; height: 14px; margin-top: 2px; }
+.board-tools { display: flex; align-items: center; gap: 14px; margin-bottom: 10px; }
+.search {
+  flex: 1; max-width: 320px; background: var(--card); border: 1px solid var(--line);
+  border-radius: 9px; padding: 8px 12px; font-size: 12.5px; outline: none;
+}
+.search:focus { border-color: #b9c9bb; box-shadow: 0 0 0 3px rgba(31, 138, 99, .08); }
+.board { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 12px; align-items: flex-start; }
+.board-col {
+  flex: 1 0 168px; min-width: 0; background: #eeeade; border: 1px solid #e6e0d1;
+  border-radius: 12px; padding: 10px; min-height: 180px;
+}
+.board-col-head { display: flex; align-items: center; gap: 6px; padding: 2px 2px 0; }
+.board-col-head strong { font-size: 11.5px; }
+.board-col-head em { margin-left: auto; font-size: 10px; color: var(--muted); background: #fff9; padding: 1px 6px; border-radius: 8px; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: #9aa49b; }
+.dot-contact { background: var(--blue); }
+.dot-qualified { background: #6c8f5c; }
+.dot-demo { background: var(--gold); }
+.dot-compliance { background: #8a5a2b; }
+.dot-live { background: var(--green-2); }
+.board-col-hint { font-size: 9.5px; color: #8a948c; line-height: 1.35; padding: 5px 2px 8px; min-height: 27px; }
+.board-empty { font-size: 10.5px; color: #9aa49b; padding: 12px 4px; }
+.employer-card {
+  background: var(--card); border: 1px solid #e4ddcc; border-radius: 9px;
+  padding: 9px 10px; margin-bottom: 6px; cursor: pointer;
+  transition: border-color .15s ease, transform .1s ease, box-shadow .15s ease;
+}
+.employer-card:hover { border-color: #bfb49a; transform: translateY(-1px); box-shadow: 0 5px 14px -10px rgba(15,36,30,.5); }
+.ec-top { display: flex; align-items: center; gap: 5px; justify-content: space-between; min-height: 14px; }
+.ec-contact { font-size: 9px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.ec-top .badge { font-size: 8.5px; padding: 1px 5px; }
+.mini-flag { font-size: 8.5px; color: var(--red); background: var(--red-bg); padding: 1px 5px; border-radius: 4px; }
+.employer-card h3 { font-size: 12.5px; margin: 6px 0 1px; line-height: 1.25; }
+.ec-meta { font-size: 10px; color: var(--muted); }
+.ec-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 7px; font-size: 9.5px; color: var(--muted); }
+.ec-foot .due { font-size: 9.5px; }
+.lost-strip { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; margin-top: 4px; padding-top: 12px; border-top: 1px solid var(--line); }
+.lost-chip { border: 1px solid var(--line); background: #efeade; color: var(--muted); border-radius: 20px; font-size: 10.5px; padding: 3px 9px; }
+.lost-chip:hover { background: #e7e0cf; }
+
+/* ---------------------------------------------------------------- badges */
+.badge {
+  display: inline-flex; align-items: center; font-size: 9.5px; font-weight: 650;
+  padding: 2px 7px; border-radius: 5px; letter-spacing: .02em; white-space: nowrap;
+  background: #eee9dd; color: #59635b;
+}
+.stage-lead { background: #eee9dd; color: #5d675f; }
+.stage-contacted { background: var(--blue-bg); color: var(--blue); }
+.stage-qualified { background: #e6efdf; color: #4c6b3e; }
+.stage-demo { background: var(--gold-bg); color: #8c611d; }
+.stage-compliance { background: #f4e6d8; color: #855526; }
+.stage-live { background: var(--mint); color: var(--green); }
+.stage-lost { background: #eceae4; color: #858b84; }
+.comp-passed { background: var(--mint); color: var(--green); }
+.comp-failed { background: var(--red-bg); color: var(--red); }
+.comp-pending { background: #f1ecdf; color: #7c735d; }
+.comp-closed { background: #eceae4; color: #858b84; }
+
+/* ---------------------------------------------------------------- compliance */
+.stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 18px; }
+.stat {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; box-shadow: var(--shadow);
+}
+.stat span { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.stat strong { display: block; font-family: var(--serif); font-size: 30px; font-weight: 500; line-height: 1.15; margin-top: 4px; }
+.stat em { font-size: 11px; color: var(--muted); }
+.stat.warn strong { color: var(--gold); }
+.stat.bad strong { color: var(--red); }
+.gate-steps { display: flex; flex-direction: column; gap: 2px; }
+.gate-step { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid #f0ebdf; }
+.gate-step:last-child { border-bottom: 0; }
+.gate-step > span {
+  flex: none; width: 22px; height: 22px; border-radius: 50%; background: #f0ebdf; color: var(--ink-soft);
+  display: grid; place-items: center; font-size: 10.5px; font-weight: 700; margin-top: 1px;
+}
+.gate-step p { font-size: 11.5px; color: var(--muted); margin-top: 1px; }
+.doc-list { list-style: none; display: flex; flex-direction: column; gap: 0; margin-top: 4px; }
+.doc-list li { display: flex; flex-direction: column; padding: 7px 0; border-bottom: 1px solid #f1ece0; }
+.doc-list li:last-child { border-bottom: 0; }
+.doc-list strong { font-size: 12px; }
+.doc-list span { font-size: 10.5px; color: var(--muted); }
+.triage-table { border: 1px solid #efe9dc; border-radius: 10px; overflow: hidden; }
+.triage-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto 92px; gap: 12px; align-items: center;
+  padding: 10px 12px; border-bottom: 1px solid #f0ebdf; background: #fffdf8;
+}
+.triage-row:last-child { border-bottom: 0; }
+.triage-name { display: flex; flex-direction: column; min-width: 0; }
+.triage-name .link-btn { justify-content: flex-start; font-size: 12.5px; color: var(--ink); }
+.triage-name .link-btn:hover { color: var(--green); }
+.triage-name .small { margin-top: 1px; }
+.triage-next { text-align: right; }
+.triage-note { margin-top: 10px; }
+.seg { display: inline-flex; background: #f0ebdf; border-radius: 7px; padding: 2px; }
+.seg-btn {
+  border: 0; background: transparent; color: #6a736b; border-radius: 5px;
+  font-size: 10px; font-weight: 600; padding: 4px 8px; white-space: nowrap;
+}
+.seg-btn.active { background: #fff; color: var(--green); box-shadow: 0 1px 2px rgba(0,0,0,.08); }
+.seg-btn.active.danger { color: var(--red); }
+.seg.small .seg-btn { font-size: 9.5px; padding: 3px 7px; }
+.flag-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2px 24px; }
+.flag { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f1ece0; }
+.flag-num { font-family: var(--mono); font-size: 9px; color: var(--faint); padding-top: 3px; }
+.flag strong { font-size: 12px; }
+.flag p { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+
+/* ---------------------------------------------------------------- playbook */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-bottom: 18px; overflow-x: auto; }
+.tab {
+  border: 0; background: transparent; padding: 9px 12px 10px; font-size: 12px;
+  font-weight: 550; color: var(--muted); border-bottom: 2px solid transparent; white-space: nowrap;
+}
+.tab:hover { color: var(--ink); }
+.tab.active { color: var(--green); border-bottom-color: var(--green); }
+.pitch-grid { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 18px; align-items: start; }
+.three-col { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; align-items: stretch; margin-bottom: 18px; }
+.pitch-main { padding: 26px; }
+.pitch-line {
+  font-family: var(--serif); font-size: 28px; line-height: 1.15; letter-spacing: -.02em;
+  font-weight: 500; margin: 10px 0 10px; max-width: 640px;
+}
+.pitch-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; border-top: 1px solid var(--line); padding-top: 16px; }
+.pitch-cols h4 { font-size: 10.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-bottom: 6px; }
+.pitch-cols ul { list-style: none; display: flex; flex-direction: column; gap: 3px; }
+.pitch-cols li { font-size: 12px; position: relative; padding-left: 12px; }
+.pitch-cols li::before { content: "–"; position: absolute; left: 0; color: var(--green-2); }
+.math-box { display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin: 10px 0; }
+.math-box > div { background: #fbf7ee; padding: 10px 12px; display: flex; align-items: baseline; gap: 8px; }
+.math-box span { font-size: 11px; color: var(--muted); width: 84px; flex: none; }
+.math-box strong { font-family: var(--serif); font-size: 19px; font-weight: 500; }
+.math-box em { font-size: 10px; color: var(--muted); }
+.tight { list-style: none; display: flex; flex-direction: column; gap: 7px; margin: 8px 0 12px; }
+.tight li { font-size: 12.5px; position: relative; padding-left: 14px; }
+.tight li::before { content: "→"; position: absolute; left: 0; color: var(--green-2); font-size: 11px; }
+.stop-list { list-style: none; display: flex; flex-direction: column; gap: 0; }
+.stop-list li { font-size: 12px; padding: 8px 0; border-bottom: 1px solid #f1ece0; }
+.stop-list li strong { color: var(--red); }
+.callout {
+  margin-top: 12px; background: #fbf6e9; border: 1px solid #eee2c8; border-radius: 9px;
+  padding: 10px 12px; font-size: 11.5px; color: #6a5628;
+}
+.callout.danger { background: var(--red-bg); border-color: #ecd2c9; color: #7d3222; }
+.callout-card { background: linear-gradient(180deg, #123528, #0d251d); color: var(--cream); border: 0; }
+.callout-card .eyebrow { color: #9cb0a3; }
+.big-quote { font-family: var(--serif); font-size: 21px; line-height: 1.35; margin-top: 8px; font-weight: 500; }
+.after-card { margin-top: 18px; }
+.after-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.after-step { border-top: 2px solid var(--line-strong); padding-top: 9px; }
+.after-num { font-family: var(--serif); font-size: 22px; color: var(--gold); line-height: 1; }
+.after-when { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); margin-top: 4px; }
+.after-step h4 { font-size: 12.5px; margin: 2px 0 3px; }
+.after-step p { font-size: 10.5px; color: var(--muted); line-height: 1.4; }
+.after-note { margin-top: 14px; }
+.qual-table { display: flex; flex-direction: column; }
+.qual-row { display: flex; gap: 10px; padding: 9px 0; border-bottom: 1px solid #f1ece0; }
+.q-num { font-family: var(--mono); font-size: 9px; color: var(--faint); padding-top: 3px; }
+.qual-row strong { font-size: 12.5px; display: block; }
+.qual-row p { font-size: 10.5px; color: var(--muted); }
+.timeline { position: relative; margin-top: 6px; padding-left: 4px; }
+.tl-item { display: flex; gap: 12px; position: relative; padding-bottom: 14px; }
+.tl-item::before { content: ""; position: absolute; left: 12px; top: 26px; bottom: 0; width: 1px; background: #e7e0d1; }
+.tl-item:last-child::before { display: none; }
+.tl-dot {
+  flex: none; width: 25px; height: 25px; border-radius: 50%; background: #f0ebdf;
+  color: var(--ink-soft); display: grid; place-items: center; font-size: 9.5px; font-weight: 700;
+  z-index: 1; border: 2px solid var(--card);
+}
+.tl-body { min-width: 0; padding-top: 2px; flex: 1; }
+.tl-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tl-head strong { font-size: 12.5px; }
+.tl-head em { font-size: 10px; color: var(--muted); margin-left: auto; }
+.tl-body p { font-size: 11.5px; color: var(--muted); margin-top: 2px; }
+.inline-script { margin-top: 5px; }
+.inline-script summary { font-size: 10.5px; color: var(--green); cursor: pointer; font-weight: 600; }
+.inline-script pre {
+  white-space: pre-wrap; font-family: var(--sans); font-size: 11.5px; line-height: 1.5;
+  background: #fbf8f0; border: 1px solid #ece5d5; border-radius: 8px;
+  padding: 10px 12px; margin: 6px 0; color: #33453d;
+}
+.timeline.compact .tl-item { padding-bottom: 10px; }
+.script-card {
+  background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: 18px; box-shadow: var(--shadow);
+}
+.script-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.script-title { font-weight: 650; font-size: 13.5px; }
+.script-meta { font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+.script-subject { font-size: 11.5px; background: #f4efe2; border-radius: 6px; padding: 6px 9px; margin-top: 10px; }
+.script-body {
+  white-space: pre-wrap; font-family: var(--sans); font-size: 12px; line-height: 1.55;
+  color: #33453d; background: #fbf8f0; border: 1px solid #efe8d9; border-radius: 8px;
+  padding: 12px; margin: 10px 0 0;
+}
+.objection { border-bottom: 1px solid #f0ebdf; padding: 3px 0; }
+.objection summary { font-size: 12.5px; font-weight: 600; cursor: pointer; padding: 7px 0; }
+.objection p { font-size: 12px; color: var(--muted); padding: 2px 0 8px; }
+.decision-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 10px; }
+.decision-grid > div { border-top: 2px solid var(--line-strong); padding-top: 10px; }
+.decision-grid strong { font-size: 12.5px; }
+.decision-grid p { font-size: 11.5px; color: var(--muted); margin-top: 3px; }
+
+/* ---------------------------------------------------------------- numbers */
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 18px; }
+.kpi {
+  background: var(--card); border: 1px solid var(--line); border-radius: 12px;
+  padding: 12px 14px; box-shadow: var(--shadow);
+}
+.kpi span { font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; color: var(--muted); }
+.kpi strong { display: block; font-family: var(--serif); font-size: 23px; font-weight: 500; line-height: 1.2; margin-top: 3px; letter-spacing: -.01em; }
+.kpi em { font-size: 10px; color: var(--muted); }
+.kpi.warn strong { color: var(--gold); }
+.kpi.bad strong { color: var(--red); }
+.kpi.good strong { color: var(--green); }
+.funnel { display: flex; flex-direction: column; gap: 9px; }
+.funnel-row { display: grid; grid-template-columns: 138px minmax(0, 1fr) 46px; gap: 10px; align-items: center; }
+.f-label { font-size: 11.5px; color: var(--ink-soft); }
+.f-bar { height: 20px; background: #f0ebdf; border-radius: 5px; overflow: hidden; }
+.f-bar span { display: block; height: 100%; background: linear-gradient(90deg, #2a7a5b, #7aa88f); border-radius: 5px; }
+.funnel-row strong { font-size: 11.5px; text-align: right; }
+.progress-row { margin-bottom: 9px; }
+.progress-top { display: flex; justify-content: space-between; font-size: 11.5px; margin-bottom: 3px; }
+.progress-top strong { font-size: 11px; color: var(--muted); }
+.model-card { margin-bottom: 18px; }
+.model-grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: 26px; align-items: center; }
+.model-controls { display: flex; flex-direction: column; gap: 12px; }
+.model-slider { display: flex; flex-direction: column; gap: 5px; }
+.model-slider > span { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); }
+.model-slider > span strong { color: var(--ink); font-family: var(--serif); font-size: 15px; font-weight: 500; }
+input[type="range"] { -webkit-appearance: none; appearance: none; height: 4px; border-radius: 4px; background: #e6dfcf; outline: none; }
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 15px; height: 15px; border-radius: 50%;
+  background: var(--green); border: 2px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); cursor: pointer;
+}
+.model-out { background: #123229; color: var(--cream); border-radius: 12px; padding: 16px 18px; }
+.model-big span { font-size: 9.5px; text-transform: uppercase; letter-spacing: .12em; color: #a2b5a8; }
+.model-big strong { display: block; font-family: var(--serif); font-size: 36px; font-weight: 500; line-height: 1.15; margin-top: 2px; }
+.model-sub { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 0; border-top: 1px solid rgba(255,255,255,.14); padding-top: 10px; }
+.model-sub.three { grid-template-columns: repeat(3, 1fr); }
+.model-sub.three span { font-size: 8.5px; letter-spacing: .07em; }
+.model-sub.three strong { font-size: 15px; }
+.model-sub span { display: block; font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: #9db1a4; }
+.model-sub strong { font-family: var(--serif); font-size: 17px; font-weight: 500; }
+.model-out .muted { color: #8fa397; }
+.score-table { display: flex; flex-direction: column; }
+.score-row { display: grid; grid-template-columns: minmax(0, 1fr) 32px 42px; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px solid #f2ede1; }
+.score-row span { font-size: 11.5px; }
+.score-row strong { font-family: var(--serif); font-size: 16px; font-weight: 500; text-align: right; }
+.score-row em { font-size: 9.5px; color: var(--muted); }
+.score-row .bar { grid-column: 1 / -1; margin: 1px 0 3px; }
+.phase-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.phase { background: #fbf8f0; border: 1px solid #ece5d5; border-radius: 11px; padding: 14px; }
+.phase-when { font-size: 9.5px; text-transform: uppercase; letter-spacing: .12em; color: var(--gold); font-weight: 700; }
+.phase h3 { font-family: var(--serif); font-size: 18px; font-weight: 500; margin: 4px 0 8px; }
+.phase ul { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.phase li { font-size: 11.5px; color: var(--ink-soft); position: relative; padding-left: 12px; }
+.phase li::before { content: "·"; position: absolute; left: 2px; color: var(--green-2); font-weight: 700; }
+.phase-target { margin-top: 10px; font-size: 10px; font-weight: 650; color: var(--green); background: var(--mint); border-radius: 6px; padding: 4px 8px; display: inline-block; }
+
+/* ---------------------------------------------------------------- drawer */
+.scrim {
+  position: fixed; inset: 0; background: rgba(9, 21, 17, .42);
+  z-index: 50; backdrop-filter: blur(1.5px);
+}
+.drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: min(560px, 94vw);
+  background: #fbf9f3; z-index: 60; overflow-y: auto;
+  box-shadow: -24px 0 60px -30px rgba(9, 21, 17, .55);
+  animation: slideIn .22s ease;
+}
+@keyframes slideIn { from { transform: translateX(24px); opacity: .6; } to { transform: none; opacity: 1; } }
+.drawer-head {
+  position: sticky; top: 0; z-index: 2;
+  display: flex; justify-content: space-between; gap: 16px; align-items: flex-start;
+  padding: 20px 22px 16px; background: rgba(251, 249, 243, .95);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--line);
+}
+.drawer-head h2 { font-family: var(--serif); font-size: 26px; font-weight: 500; letter-spacing: -.02em; margin: 3px 0 7px; line-height: 1.1; }
+.badge-row { display: flex; gap: 5px; flex-wrap: wrap; }
+.drawer-body { padding: 16px 22px 30px; }
+.drawer-kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; margin-bottom: 18px; }
+.drawer-kpis > div { background: var(--card); padding: 9px 10px; }
+.drawer-kpis span { display: block; font-size: 8.5px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); }
+.drawer-kpis strong { font-family: var(--serif); font-size: 16px; font-weight: 500; }
+.d-section { border-top: 1px solid var(--line); padding: 14px 0 16px; }
+.d-section:first-of-type { border-top: 0; padding-top: 0; }
+.d-title {
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 9.5px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--muted);
+  margin-bottom: 9px;
+}
+.score { font-family: var(--sans); font-size: 10px; letter-spacing: 0; background: #f0ebdf; padding: 1px 7px; border-radius: 8px; color: var(--ink-soft); }
+.score.good { background: var(--mint); color: var(--green); }
+.score.bad { background: var(--red-bg); color: var(--red); }
+.next-card { display: flex; justify-content: space-between; gap: 12px; align-items: center; background: #f3eee1; border-radius: 9px; padding: 10px 12px; }
+.next-title { font-size: 12.5px; font-weight: 650; }
+.next-btns { display: flex; gap: 4px; flex: none; }
+.script-jump { font-size: 11px; padding: 6px 10px; }
+.next-tools { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.next-tools .ghost-btn { font-size: 11px; padding: 6px 10px; }
+.wa-link { color: var(--green); border-color: #cfe0d3; background: #f1f8f3; }
+.stage-rail { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 6px; }
+.stage-node {
+  font-size: 9px; padding: 3px 7px; border-radius: 5px; background: #f0ebdf; color: #7a837b;
+  position: relative;
+}
+.stage-node.done { background: var(--mint); color: #4f7c66; }
+.stage-node.current { background: var(--green); color: #fff; font-weight: 650; }
+.gate-note { font-size: 10.5px; color: var(--muted); background: #fbf6e9; border-radius: 7px; padding: 7px 9px; margin-top: 8px; line-height: 1.4; }
+.gate-note.good { background: var(--mint); color: #2f604a; }
+.check-line { display: flex; gap: 8px; align-items: flex-start; font-size: 12px; cursor: pointer; }
+.check-line.roomy { margin-top: 10px; padding: 8px; background: #fbf7ed; border-radius: 7px; }
+.check-line input { accent-color: var(--green); margin-top: 2px; }
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 12px; }
+.field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.field > span { font-size: 9.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.field input, .field select, .field textarea, .mini-field input, .inline-field input {
+  width: 100%; border: 1px solid #e2dac9; background: #fffdf8; border-radius: 7px;
+  padding: 7px 9px; font-size: 12px; outline: none; color: var(--ink);
+}
+.field input:focus, .field textarea:focus, .mini-field input:focus { border-color: #a9c3b0; box-shadow: 0 0 0 3px rgba(31,138,99,.07); }
+.textarea { resize: vertical; }
+.d-section .field { margin-top: 8px; }
+.qual-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 6px; }
+.mini-field { display: flex; flex-direction: column; gap: 3px; }
+.mini-field > span { font-size: 9.5px; text-transform: uppercase; letter-spacing: .07em; color: var(--muted); }
+.bool-list { display: flex; flex-direction: column; }
+.bool-row { display: flex; justify-content: space-between; gap: 10px; align-items: center; padding: 6px 0; border-bottom: 1px solid #f1ece0; }
+.bool-row:last-child { border-bottom: 0; }
+.bool-row strong { font-size: 11.5px; display: block; font-weight: 550; }
+.bool-row .tiny { display: block; line-height: 1.3; margin-top: 1px; }
+.compliance-list { display: flex; flex-direction: column; }
+.comp-item { display: flex; gap: 9px; align-items: flex-start; padding: 6px 0; border-bottom: 1px solid #f1ece0; cursor: pointer; }
+.comp-item input { accent-color: var(--green); margin-top: 2px; flex: none; }
+.comp-item strong { display: block; font-size: 11.5px; font-weight: 550; }
+.comp-item em { display: block; font-size: 9.5px; color: var(--muted); line-height: 1.3; }
+.optional-checks { margin: 6px 0; }
+.optional-checks summary { font-size: 10.5px; color: var(--green); cursor: pointer; font-weight: 600; }
+.fixable-row { display: flex; align-items: center; justify-content: space-between; margin: 8px 0; }
+.note-form { display: flex; gap: 6px; margin-bottom: 10px; }
+.note-form input { flex: 1; border: 1px solid #e2dac9; background: #fffdf8; border-radius: 7px; padding: 7px 9px; font-size: 12px; outline: none; }
+.activity { display: flex; flex-direction: column; gap: 0; }
+.activity-item { display: flex; gap: 9px; padding: 6px 0; border-bottom: 1px solid #f3eee2; font-size: 11.5px; }
+.act-dot { width: 6px; height: 6px; border-radius: 50%; background: #b9b29f; margin-top: 6px; flex: none; }
+.act-dot.done { background: var(--green-2); }
+.act-dot.stage { background: var(--gold); }
+.act-dot.note { background: #b9b29f; }
+.drawer-foot { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line); padding-top: 14px; margin-top: 6px; }
+
+/* ---------------------------------------------------------------- sheets */
+.sheet {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: min(540px, 94vw); max-height: 90vh; overflow-y: auto;
+  background: #fbf9f3; border: 1px solid var(--line); border-radius: 18px;
+  padding: 22px 24px; z-index: 70; box-shadow: 0 40px 100px -40px rgba(9,21,17,.7);
+  animation: pop .18s ease;
+}
+@keyframes pop { from { opacity: .4; transform: translate(-50%, -48%) scale(.99); } to { opacity: 1; transform: translate(-50%, -50%) scale(1); } }
+.sheet-head { display: flex; justify-content: space-between; gap: 16px; align-items: flex-start; margin-bottom: 14px; }
+.sheet-head h2 { font-family: var(--serif); font-size: 28px; font-weight: 500; margin-top: 3px; letter-spacing: -.02em; }
+.form { display: flex; flex-direction: column; gap: 10px; }
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px; }
+.settings-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 14px 0; }
+.settings-block { background: #fffdf8; border: 1px solid var(--line); border-radius: 10px; padding: 12px; }
+.settings-block h3 { font-size: 12.5px; }
+.settings-block p { margin: 3px 0 8px; }
+.file-btn { display: inline-flex; cursor: pointer; }
+.inline-field { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 12px; }
+.inline-field input { width: 90px; }
+.toast {
+  position: fixed; bottom: 24px; left: 50%; transform: translate(-50%, 20px);
+  background: #10241e; color: #f6f1e4; font-size: 12.5px; font-weight: 500;
+  padding: 10px 16px; border-radius: 9px; box-shadow: 0 12px 30px -12px rgba(0,0,0,.5);
+  opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 90;
+  max-width: min(520px, 90vw); text-align: center;
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.mobile-only { display: none; }
+
+/* ---------------------------------------------------------------- shared workspace */
+.sync-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid var(--line); background: var(--card); color: var(--muted);
+  font-size: 10.5px; font-weight: 600; padding: 5px 10px; border-radius: 20px;
+  white-space: nowrap; transition: background .15s ease, color .15s ease;
+}
+.sync-dot { width: 6px; height: 6px; border-radius: 50%; background: #b9b29f; flex: none; }
+.sync-pill.shared { color: var(--green); border-color: #cfe0d3; background: #f1f8f3; }
+.sync-pill.shared .sync-dot { background: var(--green-2); }
+.sync-pill.saving { color: var(--gold); border-color: #e7d6b6; background: #fdf7ea; }
+.sync-pill.saving .sync-dot { background: var(--gold); animation: syncpulse 1.1s ease-in-out infinite; }
+.sync-pill.offline { color: #7a7364; border-color: #ddd5c4; background: #f4f0e6; }
+.sync-pill.offline .sync-dot { background: #a69c86; }
+.sync-pill.conflict { color: var(--red); border-color: #ecd2c9; background: var(--red-bg); }
+.sync-pill.conflict .sync-dot { background: var(--red); }
+.sync-pill.connecting { color: var(--blue); border-color: #d5e0eb; background: var(--blue-bg); }
+.sync-pill.connecting .sync-dot { background: var(--blue); }
+.sync-pill.local .sync-dot { background: #b9b29f; }
+@keyframes syncpulse { 50% { opacity: .25; } }
+.sync-banner {
+  position: sticky; top: 62px; z-index: 19;
+  background: #fdf3df; border-bottom: 1px solid #ead6b2;
+  padding: 9px 36px;
+}
+.sync-banner-inner {
+  max-width: 1320px; margin: 0 auto;
+  display: flex; align-items: center; gap: 16px; justify-content: space-between;
+}
+.sync-banner strong { display: block; font-size: 12.5px; }
+.sync-banner span { display: block; font-size: 11.5px; color: #7a6844; margin-top: 1px; }
+.sync-actions { display: flex; gap: 6px; flex: none; }
+.sync-actions .ghost-btn, .sync-actions .primary-btn { padding: 6px 10px; font-size: 11px; }
+.sync-gate {
+  position: fixed; inset: 0; z-index: 120;
+  display: grid; place-items: center; padding: 20px;
+  background: rgba(7, 20, 15, .74);
+  backdrop-filter: blur(7px);
+}
+.sync-gate-card {
+  width: min(430px, 100%); background: var(--card);
+  border: 1px solid var(--line); border-radius: 18px; padding: 26px;
+  box-shadow: 0 40px 100px -35px rgba(0, 0, 0, .7);
+  animation: pop .2s ease;
+}
+.sync-brand { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; }
+.sync-brand strong { display: block; font-family: var(--serif); font-size: 18px; line-height: 1; }
+.sync-brand em { font-style: normal; display: block; margin-top: 4px; font-size: 9px; letter-spacing: .18em; text-transform: uppercase; color: var(--muted); }
+.sync-gate h2 { font-family: var(--serif); font-size: 30px; font-weight: 500; letter-spacing: -.02em; margin: 4px 0 8px; }
+.sync-gate p { font-size: 12.5px; color: var(--muted); margin-bottom: 16px; line-height: 1.5; }
+.sync-gate .field { margin-bottom: 10px; }
+.sync-gate .field input { padding: 9px 10px; font-size: 13px; }
+.sync-gate .primary-btn.wide { margin-top: 8px; padding: 11px; }
+.sync-error { color: var(--red); background: var(--red-bg); border-radius: 7px; padding: 7px 9px; font-size: 11.5px; margin-bottom: 8px; }
+.sync-offline { margin-top: 14px; font-size: 11.5px; color: var(--muted); }
+.sync-pill .sync-text { line-height: 1; }
+
+/* ---------------------------------------------------------------- responsive */
+@media (max-width: 1180px) {
+  .grid-main, .pitch-grid { grid-template-columns: 1fr; }
+  .side { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .source-grid { grid-template-columns: repeat(2, 1fr); }
+  .hero { grid-template-columns: 1fr; }
+  .hero-stats { grid-template-columns: repeat(4, 1fr); }
+  .hero-stat { min-height: 76px; }
+}
+@media (max-width: 980px) {
+  .sidebar { transform: translateX(-100%); transition: transform .2s ease; width: 252px; }
+  .sidebar.open { transform: none; box-shadow: 20px 0 60px -20px rgba(0,0,0,.5); }
+  .main { margin-left: 0; width: 100%; }
+  .topbar { padding: 0 20px; }
+  .mobile-only { display: inline-grid; }
+  .view { padding: 20px 20px 80px; }
+  .grid-two, .stat-row, .phase-grid { grid-template-columns: 1fr 1fr; }
+  .pitch-cols { grid-template-columns: 1fr; gap: 12px; }
+  .three-col { grid-template-columns: 1fr; }
+  .after-grid { grid-template-columns: 1fr 1fr; }
+  .model-grid { grid-template-columns: 1fr; }
+  .side { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .hero { padding: 22px 20px; }
+  .hero h1 { font-size: 36px; }
+  .hero-stats { grid-template-columns: 1fr 1fr; }
+  .hero-stat:nth-child(n) { min-height: 72px; }
+  .page-head { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .page-head h1 { font-size: 32px; }
+  .grid-two, .stat-row, .phase-grid, .kpi-grid, .settings-grid, .flag-grid, .decision-grid, .after-grid { grid-template-columns: 1fr; }
+  .action-row { grid-template-columns: 40px minmax(0, 1fr) auto; }
+  .action-row > .due { display: none; }
+  .type-chip { width: 40px; }
+  .counter-grid { grid-template-columns: 1fr 1fr; }
+  .source-grid { grid-template-columns: 1fr; }
+  .drawer-kpis { grid-template-columns: 1fr 1fr; }
+  .form-grid, .qual-grid, .field-row { grid-template-columns: 1fr; }
+  .triage-row { grid-template-columns: 1fr; gap: 6px; }
+  .triage-next { text-align: left; }
+  .view { padding: 16px 14px 70px; }
+  .topbar { padding: 0 14px; }
+  .week-chip { display: none; }
+  .sync-pill .sync-text { display: none; }
+  .sync-banner { padding: 8px 14px; }
+  .sync-banner-inner { flex-direction: column; align-items: flex-start; gap: 7px; }
+  .funnel-row { grid-template-columns: 100px minmax(0, 1fr) 40px; }
+}
+
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="brand-mark">C</div>
+      <div>
+        <div class="brand-name">ChequeIn</div>
+        <div class="brand-sub">Sales OS</div>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <a href="#/today" data-route="today" class="nav-item">
+        <span class="nav-ico" data-icon="sun"></span><span>Today</span><span class="nav-count" id="nav-due"></span>
+      </a>
+      <a href="#/pipeline" data-route="pipeline" class="nav-item">
+        <span class="nav-ico" data-icon="flow"></span><span>Pipeline</span><span class="nav-count" id="nav-pipeline"></span>
+      </a>
+      <a href="#/compliance" data-route="compliance" class="nav-item">
+        <span class="nav-ico" data-icon="shield"></span><span>Compliance gate</span><span class="nav-count" id="nav-compliance"></span>
+      </a>
+      <a href="#/playbook" data-route="playbook" class="nav-item">
+        <span class="nav-ico" data-icon="book"></span><span>Playbook</span>
+      </a>
+      <a href="#/numbers" data-route="numbers" class="nav-item">
+        <span class="nav-ico" data-icon="chart"></span><span>Numbers</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-card">
+      <div class="sidebar-card-label">The one number</div>
+      <div class="sidebar-card-value" id="sidebar-rev">₦31,905</div>
+      <div class="sidebar-card-meta" id="sidebar-rev-meta">per month · 106 employees</div>
+      <a href="#/numbers" class="sidebar-link">Grow revenue per employee →</a>
+    </div>
+
+    <div class="sidebar-foot">
+      <button class="ghost-btn" id="btn-settings-sheet" type="button">Settings &amp; data</button>
+      <div class="muted tiny">Local-first · saves in this browser</div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="topbar">
+      <button class="icon-btn mobile-only" id="btn-menu" aria-label="Menu" type="button">☰</button>
+      <div class="crumb" id="crumb">Today</div>
+      <div class="topbar-right">
+        <span class="week-chip" id="week-chip">Week 1</span>
+        <button class="primary-btn" id="btn-quick-add" type="button">+ Add employer</button>
+      </div>
+    </div>
+
+    <div id="view" class="view"></div>
+  </main>
+</div>
+
+<!-- Employer drawer -->
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer" id="drawer" hidden aria-label="Employer detail"></aside>
+
+<!-- Add employer panel -->
+<div class="scrim" id="add-scrim" hidden></div>
+<section class="sheet add-sheet" id="add-sheet" hidden aria-label="Add employer">
+  <div class="sheet-head">
+    <div>
+      <div class="eyebrow">New employer</div>
+      <h2>Who are you going after?</h2>
+    </div>
+    <button class="icon-btn" data-close="add" type="button" aria-label="Close">✕</button>
+  </div>
+  <form id="add-form" class="form">
+    <label class="field">
+      <span>Employer name</span>
+      <input name="name" required placeholder="e.g. Greenfield Academy, Ikeja" autocomplete="off">
+    </label>
+    <div class="field-row">
+      <label class="field">
+        <span>Contact person</span>
+        <input name="contact" placeholder="Mrs. Adeyemi" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>Role</span>
+        <input name="role" placeholder="Proprietor / Admin" autocomplete="off">
+      </label>
+    </div>
+    <div class="field-row">
+      <label class="field">
+        <span>Phone / WhatsApp</span>
+        <input name="phone" placeholder="080..." inputmode="tel" autocomplete="off">
+      </label>
+      <label class="field">
+        <span>Staff count</span>
+        <input name="staff" type="number" min="0" placeholder="e.g. 35" inputmode="numeric">
+      </label>
+    </div>
+    <div class="field-row">
+      <label class="field">
+        <span>Segment</span>
+        <select name="segment">
+          <option>School</option>
+          <option>Hospital / clinic</option>
+          <option>Hospitality</option>
+          <option>Retail / distribution</option>
+          <option>Services / agency</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label class="field">
+        <span>City / area</span>
+        <input name="city" placeholder="Ikeja, Lagos" autocomplete="off">
+      </label>
+    </div>
+    <label class="field">
+      <span>How did you find them? <em class="muted">(optional)</em></span>
+      <input name="source" placeholder="Google Maps / referral / school association" autocomplete="off">
+    </label>
+    <label class="check-line">
+      <input type="checkbox" name="startSequence" checked>
+      <span>Start the 21-day outreach cadence and put the first WhatsApp in Today.</span>
+    </label>
+    <div class="form-actions">
+      <button type="button" class="ghost-btn" data-close="add">Cancel</button>
+      <button type="submit" class="primary-btn">Add to pipeline</button>
+    </div>
+  </form>
+</section>
+
+<!-- Bulk add -->
+<section class="sheet" id="bulk-sheet" hidden aria-label="Paste targets">
+  <div class="sheet-head">
+    <div>
+      <div class="eyebrow">Batch entry</div>
+      <h2>Paste a target list</h2>
+    </div>
+    <button class="icon-btn" data-close="bulk" type="button" aria-label="Close">✕</button>
+  </div>
+  <p class="muted">One employer per line: <code>Name, Contact, Phone, Staff, Area</code>. Only the name is required. The cadence starts for every row.</p>
+  <form id="bulk-form">
+    <textarea name="rows" rows="8" class="textarea" placeholder="Greenfield Academy, Mrs. Adeyemi, 08031234567, 35, Ikeja
+St. Paul's College, Mr. Okafor, 08087654321, 52, Surulere"></textarea>
+    <div class="form-actions">
+      <button type="button" class="ghost-btn" data-close="bulk">Cancel</button>
+      <button type="submit" class="primary-btn">Add all</button>
+    </div>
+  </form>
+</section>
+
+<!-- Settings / data sheet -->
+<section class="sheet" id="settings-sheet" hidden aria-label="Settings and data">
+  <div class="sheet-head">
+    <div>
+      <div class="eyebrow">Settings</div>
+      <h2>Your data</h2>
+    </div>
+    <button class="icon-btn" data-close="settings" type="button" aria-label="Close">✕</button>
+  </div>
+  <p class="muted">Everything lives in this browser. Export regularly if you're sharing the system with a team.</p>
+  <div class="settings-grid">
+    <div class="settings-block">
+      <h3>Export</h3>
+      <p class="muted small">Download a JSON backup of the pipeline, logs and targets.</p>
+      <button class="ghost-btn" id="btn-export" type="button">Download backup</button>
+    </div>
+    <div class="settings-block">
+      <h3>Import</h3>
+      <p class="muted small">Restore a backup. This replaces what's here.</p>
+      <label class="ghost-btn file-btn">Choose file<input type="file" id="file-import" accept="application/json" hidden></label>
+    </div>
+    <div class="settings-block">
+      <h3>Reset</h3>
+      <p class="muted small">Back to the seeded ChequeIn starting point.</p>
+      <button class="ghost-btn danger-text" id="btn-reset" type="button">Reset to baseline</button>
+    </div>
+  </div>
+  <div class="settings-block">
+    <h3>Revenue assumption</h3>
+    <p class="muted small">Used in the Numbers model. Baseline is about ₦300 per employee per month.</p>
+    <label class="inline-field">
+      <span>₦</span>
+      <input type="number" id="rev-per-emp" min="0" step="10" value="300">
+      <span>per active employee / month</span>
+    </label>
+  </div>
+</section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ChequeIn Sales OS — content, sequences and seed data.
+   Everything here is editable in the UI; this file is only the starting point. */
+window.CI = (function () {
+  const DAY = 86400000;
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const iso = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const off = (n) => iso(new Date(Date.now() + n * DAY));
+
+  const STAGES = [
+    { id: "lead", label: "Lead", short: "Lead", hint: "Name in the list, not contacted yet." },
+    { id: "contacted", label: "Contacted", short: "Contacted", hint: "First touch sent or call made." },
+    { id: "qualified", label: "Qualified", short: "Qualified", hint: "Scorecard passed: 10+ staff, transfer payroll, registered." },
+    { id: "demo", label: "Demo", short: "Demo", hint: "You showed the payroll flow and staff app." },
+    { id: "compliance", label: "Compliance", short: "Compliance", hint: "Documents in review — the stage that kills deals." },
+    { id: "live", label: "Live", short: "Live", hint: "First payroll run through ChequeIn." },
+    { id: "lost", label: "Lost / park", short: "Lost", hint: "Not a fit now. Revisit next term." }
+  ];
+
+  const REQUIRED_CHECKS = [
+    { id: "cac", label: "CAC certificate", detail: "Business name or limited company registration." },
+    { id: "tin", label: "TIN / tax ID", detail: "Name on the TIN must match the employer." },
+    { id: "address", label: "Proof of address", detail: "Utility bill or tenancy agreement, last 3 months." },
+    { id: "directorId", label: "Proprietor / director ID", detail: "NIN slip, passport or driver's licence." },
+    { id: "signatory", label: "Authorised signatory", detail: "Board resolution or letter naming who approves payroll." },
+    { id: "bank", label: "Corporate bank account", detail: "Account name matches the registered business." },
+    { id: "staffList", label: "Staff payroll file", detail: "Names, roles, salaries, bank details, start dates." },
+    { id: "consent", label: "Staff consent", detail: "Signed consent for payroll and data processing." }
+  ];
+
+  const OPTIONAL_CHECKS = [
+    { id: "payrollProof", label: "Last 2 payroll runs", detail: "Bank evidence that salaries are actually paid." },
+    { id: "noDeductions", label: "No conflicting deductions", detail: "No existing salary loan or court deduction." }
+  ];
+
+  const QUALIFICATION = [
+    { id: "staffCount", label: "Staff on payroll", type: "number", hint: "10+ is viable. Below that, the maths rarely works." },
+    { id: "monthlyPayroll", label: "Monthly payroll (₦)", type: "number", hint: "Used to size the account and the revenue." },
+    { id: "paidByTransfer", label: "Salaries paid by transfer", type: "bool", hint: "Cash payroll is a hard stop for now." },
+    { id: "decisionMaker", label: "Decision maker engaged", type: "bool", hint: "Owner, proprietor or finance lead — not an assistant." },
+    { id: "registered", label: "CAC + TIN in place", type: "bool", hint: "If not, they will fail compliance later. Park them." },
+    { id: "noDeductions", label: "No existing salary deductions", type: "bool", hint: "Existing lender deductions need partner sign-off." },
+    { id: "consentPossible", label: "Staff consent is realistic", type: "bool", hint: "Will they collect signed consent this term?" }
+  ];
+
+  const SEQUENCES = {
+    school: {
+      id: "school",
+      label: "School outreach · 21 days",
+      steps: [
+        { gap: 0, type: "whatsapp", title: "First WhatsApp to {contact}", detail: "Intro + ask who owns payroll. Send before 9am.", script: "wa_intro" },
+        { gap: 1, type: "call", title: "Call {contact}", detail: "60-second opener. Goal: a 20-minute demo.", script: "call_opener" },
+        { gap: 3, type: "whatsapp", title: "Send the teacher story", detail: "Value touch, no ask. One message, one story.", script: "wa_value" },
+        { gap: 5, type: "email", title: "Email the one-pager", detail: "Free payroll + what staff get.", script: "email_pack" },
+        { gap: 8, type: "call", title: "Second call", detail: "Ask for the demo. Name a day and time.", script: "call_demo" },
+        { gap: 12, type: "whatsapp", title: "Offer the compliance shortcut", detail: "Send the exact document list.", script: "wa_docs" },
+        { gap: 16, type: "call", title: "Third call — decision maker", detail: "Ask for a yes or no by Friday.", script: "call_dm" },
+        { gap: 21, type: "whatsapp", title: "Break-up message", detail: "Leave the door open, then stop.", script: "wa_breakup" }
+      ]
+    },
+    activation: {
+      id: "activation",
+      label: "Activation · first 30 days",
+      steps: [
+        { gap: 0, type: "session", title: "Run staff onboarding at {name}", detail: "20 minutes, on-site. Everyone opens the app.", script: "activation_session" },
+        { gap: 1, type: "whatsapp", title: "Check who hasn't activated", detail: "Send the list back to the contact.", script: "activation_nudge" },
+        { gap: 3, type: "review", title: "Payday savings push", detail: "Salary day: ask staff to move a small amount.", script: "payday_push" },
+        { gap: 7, type: "review", title: "Start a team savings challenge", detail: "Small amounts, visible progress.", script: "savings_challenge" },
+        { gap: 14, type: "review", title: "Introduce salary access", detail: "Only for staff with 2+ salary cycles.", script: "ewa_intro" },
+        { gap: 30, type: "review", title: "30-day activation review", detail: "Activation, savings, EWA, revenue. Decide the next push.", script: "activation_review" }
+      ]
+    },
+    recovery: {
+      id: "recovery",
+      label: "Failed compliance · fix or drop",
+      steps: [
+        { gap: 0, type: "call", title: "Triage call to {name}", detail: "Find the exact blocker, not 'documents missing'.", script: "recovery_call" },
+        { gap: 2, type: "whatsapp", title: "Send the fix list", detail: "Only the missing items. Photos are fine.", script: "recovery_docs" },
+        { gap: 7, type: "call", title: "Follow up on documents", detail: "Walk them through it while they look.", script: "recovery_call" },
+        { gap: 14, type: "review", title: "Decide: fix or drop", detail: "No movement in 14 days = not a fit this quarter." }
+      ]
+    }
+  };
+
+  const SCRIPTS = {
+    wa_intro: {
+      title: "First WhatsApp",
+      channel: "WhatsApp",
+      when: "Day 0 · send before 9am, while they're doing admin",
+      body: `Good morning {contact} — my name is {you}, I'm with ChequeIn.\n\nWe help Lagos schools run payroll at no cost: salaries paid on time, and every staff member gets a ChequeIn account for savings and for accessing salary they have already earned.\n\nAre you the one who handles staff salaries at {employer}?`
+    },
+    call_opener: {
+      title: "60-second opener",
+      channel: "Phone",
+      when: "Day 1 · call the number from Google Maps or the school website",
+      body: `Good afternoon {contact}, this is {you} from ChequeIn. I'll keep this to 60 seconds.\n\nWe pay school salaries free of charge. The school keeps its money, staff are paid on time, and each teacher gets a savings account and salary access through our app.\n\nIs payroll something you handle directly, or does your accountant run it?\n\n[If them] “Can I show you the flow in 20 minutes? Tuesday or Thursday — which is quieter?”\n[If accountant] “Who signs it off — you or the accountant? I'll send one message and you can decide together.”`
+    },
+    wa_value: {
+      title: "The teacher story",
+      channel: "WhatsApp",
+      when: "Day 3 · no ask, just proof",
+      body: `Quick example, {contact}: a teacher on ₦120,000 at one of our schools was always borrowing by the 20th.\n\nShe now moves ₦5,000 to savings on payday and has a buffer by month-end. Salary access means she doesn't need a loan app at all.\n\nIt costs the school nothing. If payroll is on your list this term, I'll show you in 20 minutes.`
+    },
+    email_pack: {
+      title: "One-pager email",
+      channel: "Email",
+      when: "Day 5 · use the employer's generic info@ address too",
+      subject: "Free payroll for {employer} — no cost to the school",
+      body: `Dear {contact},\n\nI'm {you} from ChequeIn. We would like to run {employer}'s payroll free of charge.\n\nWhat the school gets\n• Salaries paid on time, every month, with a clean payroll record\n• No payroll fee, no setup fee\n• Each staff member gets a ChequeIn account for savings and earned-salary access\n\nWhat you need to provide\n• CAC certificate, TIN and proof of address\n• Director ID and authorised signatory\n• Staff payroll file and signed staff consent\n\nSetup takes about one week once the documents are in. I'd need 20 minutes to show you the flow — would Thursday at 10am work?\n\n{sender_name}\n{your_phone} · ChequeIn`
+    },
+    call_demo: {
+      title: "Second call — ask for the demo",
+      channel: "Phone",
+      when: "Day 8 · after the one-pager",
+      body: `Hi {contact}, it's {you} from ChequeIn — following up on the message I sent about free payroll.\n\nI'd like 20 minutes to show you two things: how payroll runs on your side, and what your staff see on their phones. If it isn't a fit after that, I'll leave you alone.\n\nDoes Thursday 10am work, or is Friday afternoon better?`
+    },
+    wa_docs: {
+      title: "Compliance shortcut",
+      channel: "WhatsApp",
+      when: "Day 12 · make compliance feel small",
+      body: `{contact}, if {employer} wants to go live this term, here is the exact list:\n\n1. CAC certificate\n2. TIN\n3. Proof of address\n4. Director / proprietor ID\n5. Authorised signatory letter\n6. Corporate account details\n7. Staff list (names, roles, salaries, bank)\n8. Signed staff consent\n\nSend photos of what you have today and I'll mark the gaps. Most schools are approved within a week of sending everything.`
+    },
+    call_dm: {
+      title: "Third call — yes or no",
+      channel: "Phone",
+      when: "Day 16 · ask for the decision maker",
+      body: `{contact}, it's {you} from ChequeIn. I've sent the checklist twice and I don't want to keep guessing.\n\nCan I speak to whoever signs off payroll? If that's you, I need a yes or no by Friday so I can hold an onboarding slot for {employer}.\n\nIf it's a no this term, tell me and I'll come back next term instead.`
+    },
+    wa_breakup: {
+      title: "Break-up message",
+      channel: "WhatsApp",
+      when: "Day 21 · then move to nurture",
+      body: `Hi {contact} — I'll stop here so I'm not a nuisance.\n\nIf free payroll or staff savings becomes a priority this term, reply “payroll” and I'll pick it up the same day.\n\nWishing {employer} a strong term.`
+    },
+    activation_session: {
+      title: "20-minute staff session",
+      channel: "In person",
+      when: "Go-live day · run it at the school, not over a link",
+      body: `0–2 min — Why we're here\n“Your salary will land in ChequeIn this month. No fee to you. Your account is yours, not the school's.”\n\n2–5 min — Get in\nDownload the app, sign up with the phone number payroll has, BVN, ID. Help the two people who always struggle first.\n\n5–8 min — Salary\n“This is where your salary lands. You can check it, and your balance is yours.”\n\n8–12 min — Savings\n“On payday, move ₦2,000 — or whatever is real — before you spend. Do it once and it becomes a habit.”\n\n12–15 min — Salary access\n“If you need money before payday, you can access salary you've already earned. Capped, fee shown upfront. It is not a loan and it is not free money.”\n\n15–20 min — Questions + who needs help\nWrite down the names of anyone who didn't finish. Send that list to the employer contact the same day.\n\nDo not promise credit. Do not promise a limit.`
+    },
+    activation_nudge: {
+      title: "Activation nudge to the employer",
+      channel: "WhatsApp",
+      when: "Day 1 after the session",
+      body: `{contact}, thank you for the time yesterday. {n} of {total} staff finished setting up.\n\nHere are the ones still pending: [names]. A one-line message from you usually gets them over the line — can you nudge them before payday?\n\nI'll send a reminder on salary day.`
+    },
+    payday_push: {
+      title: "Payday push",
+      channel: "WhatsApp / staff group",
+      when: "Salary day, 9am · the highest-leverage message you send",
+      body: `Your salary is in. 🎉\n\nBefore you spend anything, move ₦2,000 to savings. It takes 30 seconds and it's the difference between a hard month and a manageable one.\n\nReply “done” and I'll add you to this month's savings list.`
+    },
+    savings_challenge: {
+      title: "Team savings challenge",
+      channel: "WhatsApp / staff group",
+      when: "Day 7 · make saving social",
+      body: `This term's staff challenge: save ₦2,000 on every payday for 3 months.\n\nNo judgement, no minimum income. The only rule is that it comes out before spending.\n\nWe'll share the group total each payday — no names, just the number. Who's in?`
+    },
+    ewa_intro: {
+      title: "Introducing salary access",
+      channel: "WhatsApp / staff group",
+      when: "Day 14 · only after 2 clean salary cycles",
+      body: `One more thing you now have: salary access.\n\nIf money is tight before payday, you can access part of the salary you have already earned — not a loan, capped at what you've earned, with the fee shown before you confirm.\n\nUse it for a gap, not for a habit. Savings first.`
+    },
+    activation_review: {
+      title: "30-day activation review",
+      channel: "Call / meeting",
+      when: "Day 30 · with the employer contact",
+      body: `{contact}, one month in. Here's where {employer} stands:\n\n• Staff paid through ChequeIn: {paid}\n• Staff using savings: {savings}\n• Staff using salary access: {ewa}\n• Issues raised by staff: {issues}\n\nWhat would make the biggest difference next month — getting the remaining staff on, or getting savers to save consistently?`
+    },
+    recovery_call: {
+      title: "Triage call",
+      channel: "Phone",
+      when: "Same week compliance failed",
+      body: `Good morning {contact}, this is {you} from ChequeIn. We reviewed {employer}'s application and it stopped at {reason}.\n\nUsually that's a document, not a no. Which of these is true — you don't have it, it's in another name, or it's expired?\n\nIf you can send it this week, we can restart the review and still get you live this month.`
+    },
+    recovery_docs: {
+      title: "The fix list",
+      channel: "WhatsApp",
+      when: "After the triage call · only the missing items",
+      body: `{contact}, to restart {employer} we only need:\n\n• {doc1}\n• {doc2}\n\nPhotos on WhatsApp are fine. Once received, compliance takes 2–3 working days. If either one doesn't exist, tell me and we'll look at an alternative.`
+    }
+  };
+
+  const OBJECTIONS = [
+    {
+      q: "“We already use a payroll provider.”",
+      a: "Keep them for now. Let us run one parallel payroll free of charge. If your staff don't prefer it, you've lost nothing but an hour. If they do, you stop paying the other provider."
+    },
+    {
+      q: "“Is this a loan app?”",
+      a: "No. Salary access lets staff reach salary they have already earned — capped, with the fee shown before they confirm. Savings is the default habit, not borrowing."
+    },
+    {
+      q: "“What's the catch? Nothing is free.”",
+      a: "No fee to the school. Salaries must be paid through ChequeIn, and we earn when staff choose savings or salary access. If staff don't use it, we don't earn — which is why we run the staff session ourselves."
+    },
+    {
+      q: "“Our staff won't use it.”",
+      a: "That's the normal first reaction. We run a 20-minute session on-site, nudge the ones who don't finish, and send a payday message. At our live schools, a third of staff used salary access in the first month — the ones who don't, still get paid on time."
+    },
+    {
+      q: "“Why do you need staff data?”",
+      a: "Payroll needs names, salaries and bank details. Consent is explicit and signed, the account is held with our partner bank, and data is used for payroll and eligibility only. I'll send the consent form before anyone signs."
+    },
+    {
+      q: "“We pay salaries in cash.”",
+      a: "Then we can't help yet — cash means no salary trail and no account to pay into. When you move to transfers, call me and we'll set it up in a week."
+    },
+    {
+      q: "“Too busy this term.”",
+      a: "Understood — the term is the busy part. The setup is about one week and I do the work. Can we book the kickoff for the first week of next term, so it's done before resumption?"
+    }
+  ];
+
+  const SOURCING = [
+    {
+      label: "Private schools · Ikeja",
+      detail: "Google Maps gives you name, phone and address in one pass.",
+      href: "https://www.google.com/maps/search/private+schools+in+Ikeja+Lagos"
+    },
+    {
+      label: "Private schools · Surulere",
+      detail: "Dense cluster of 20–80 staff schools.",
+      href: "https://www.google.com/maps/search/private+schools+in+Surulere+Lagos"
+    },
+    {
+      label: "Private schools · Lekki / Ajah",
+      detail: "Higher fee schools, larger payrolls.",
+      href: "https://www.google.com/maps/search/private+schools+in+Lekki+Lagos"
+    },
+    {
+      label: "School administrators on LinkedIn",
+      detail: "Search by title, then ask for the proprietor.",
+      href: "https://www.linkedin.com/search/results/people/?keywords=school%20administrator%20Lagos"
+    },
+    {
+      label: "NAPPS Lagos chapters",
+      detail: "Association lists are the fastest route to owners.",
+      href: "https://www.google.com/search?q=NAPPS+Lagos+chapter+private+schools+list"
+    },
+    {
+      label: "Hospital / clinic administrators",
+      detail: "Shift staff, monthly payroll, same compliance profile.",
+      href: "https://www.google.com/maps/search/private+hospitals+in+Lagos"
+    }
+  ];
+
+  const RED_FLAGS = [
+    { title: "Cash-paid staff", detail: "No salary trail. Disqualify until they move to transfers." },
+    { title: "No CAC or TIN", detail: "Cannot pass compliance with a partner bank. Park, don't promise." },
+    { title: "Payroll file vs bank credits mismatch", detail: "The file says ₦180,000, the account receives ₦90,000. Ask before review." },
+    { title: "Owner refuses staff consent", detail: "A hard stop. No consent, no accounts." },
+    { title: "Existing salary loans", detail: "Needs partner sign-off on deduction priority before you sell." },
+    { title: "Fewer than 10 staff", detail: "Revenue per employer rarely covers the onboarding effort." },
+    { title: "Term-time only staff", detail: "Seasonal payroll breaks the savings and repayment rhythm." }
+  ];
+
+  const FAILURES = [
+    { reason: "CAC certificate missing", note: "Common and fixable — many schools registered the business name but never collected the certificate." },
+    { reason: "TIN name mismatch", note: "TIN is in the proprietor's name, not the school's. Fixable with a status update." },
+    { reason: "Director KYC incomplete", note: "ID expired or NIN slip missing. One document away." },
+    { reason: "No staff consent forms", note: "Fixable — send the consent template and collect signatures at the next staff meeting." },
+    { reason: "Staff paid in cash", note: "Not a fit until payroll moves to transfers. Park for next term." },
+    { reason: "Bank account not in business name", note: "Fixable, but slow — the account must match the CAC name." },
+    { reason: "Payroll file doesn't match bank credits", note: "Investigate first: could be allowances or multiple accounts." }
+  ];
+
+  function blankChecks() {
+    const c = {};
+    REQUIRED_CHECKS.concat(OPTIONAL_CHECKS).forEach((x) => { c[x.id] = null; });
+    return c;
+  }
+
+  function allChecks(value) {
+    const c = {};
+    REQUIRED_CHECKS.concat(OPTIONAL_CHECKS).forEach((x) => { c[x.id] = value; });
+    return c;
+  }
+
+  function stepAction(seqId, stepIndex, employer) {
+    const seq = SEQUENCES[seqId];
+    const step = seq.steps[stepIndex];
+    const name = employer.contact || employer.name;
+    const fill = (s) => String(s).replace(/\{name\}/g, employer.name).replace(/\{contact\}/g, name);
+    return {
+      seq: seqId,
+      step: stepIndex,
+      type: step.type,
+      title: fill(step.title),
+      detail: fill(step.detail),
+      script: step.script || null,
+      due: off(step.gap)
+    };
+  }
+
+  function seed() {
+    const employers = [
+      {
+        id: "e_willb",
+        name: "Will'B' Excellence Schools",
+        segment: "School",
+        city: "Lagos",
+        contact: "",
+        role: "Proprietor",
+        phone: "",
+        email: "",
+        source: "Existing customer",
+        staffEstimate: 52,
+        stage: "live",
+        createdAt: off(-95),
+        qualification: { staffCount: 52, monthlyPayroll: 7800000, paidByTransfer: true, decisionMaker: true, registered: true, noDeductions: true, consentPossible: true, demoDone: true },
+        compliance: { checks: allChecks(true), notes: "", failReason: "", fixable: null },
+        metrics: { employees: 52, ewaActive: 18, savingsFunded: 5, revenue: 15600 },
+        nextAction: stepAction("activation", 0, { name: "Will'B' Excellence Schools", contact: "" }),
+        activity: [
+          { date: off(-95), type: "note", text: "First payroll run through ChequeIn." },
+          { date: off(-4), type: "note", text: "Only 5 of 52 staff have funded savings. Activation is the gap." }
+        ],
+        notes: "Two schools passed compliance; this is the largest live payroll. Push the staff session this week."
+      },
+      {
+        id: "e_espana",
+        name: "Espana Carabana",
+        segment: "Other",
+        city: "Lagos",
+        contact: "",
+        role: "Owner",
+        phone: "",
+        email: "",
+        source: "Existing customer",
+        staffEstimate: 34,
+        stage: "live",
+        createdAt: off(-88),
+        qualification: { staffCount: 34, monthlyPayroll: 5100000, paidByTransfer: true, decisionMaker: true, registered: true, noDeductions: true, consentPossible: true, demoDone: true },
+        compliance: { checks: allChecks(true), notes: "", failReason: "", fixable: null },
+        metrics: { employees: 34, ewaActive: 12, savingsFunded: 3, revenue: 10200 },
+        nextAction: stepAction("activation", 2, { name: "Espana Carabana", contact: "" }),
+        activity: [
+          { date: off(-88), type: "note", text: "First payroll run through ChequeIn." },
+          { date: off(-2), type: "note", text: "Payday this week — savings push is the priority." }
+        ],
+        notes: "34 staff paid. Savings is thin; the payday message is the lever."
+      },
+      {
+        id: "e_oriented",
+        name: "Oriented Souls",
+        segment: "School",
+        city: "Lagos",
+        contact: "",
+        role: "Proprietor",
+        phone: "",
+        email: "",
+        source: "Existing customer",
+        staffEstimate: 20,
+        stage: "live",
+        createdAt: off(-70),
+        qualification: { staffCount: 20, monthlyPayroll: 2600000, paidByTransfer: true, decisionMaker: true, registered: true, noDeductions: true, consentPossible: true, demoDone: true },
+        compliance: { checks: allChecks(true), notes: "", failReason: "", fixable: null },
+        metrics: { employees: 20, ewaActive: 5, savingsFunded: 0, revenue: 6105 },
+        nextAction: stepAction("activation", 5, { name: "Oriented Souls", contact: "" }),
+        activity: [
+          { date: off(-70), type: "note", text: "First payroll run through ChequeIn." },
+          { date: off(-1), type: "note", text: "30-day activation review due. No savings funded yet." }
+        ],
+        notes: "Smallest payroll. Use it as the proof point for a referral to two sister schools."
+      }
+    ];
+
+    FAILURES.forEach((f, i) => {
+      const id = "e_failed_" + (i + 1);
+      employers.push({
+        id,
+        name: "Failed employer " + (i + 1),
+        segment: "Unconfirmed",
+        city: "",
+        contact: "",
+        role: "",
+        phone: "",
+        email: "",
+        source: "Signed up, failed compliance",
+        staffEstimate: 0,
+        stage: "compliance",
+        createdAt: off(-60 + i),
+        qualification: { staffCount: null, monthlyPayroll: null, paidByTransfer: null, decisionMaker: null, registered: null, noDeductions: null, consentPossible: null, demoDone: false },
+        compliance: { checks: blankChecks(), notes: "", failReason: f.reason, fixable: null, failureIndex: i },
+        metrics: { employees: 0, ewaActive: 0, savingsFunded: 0, revenue: 0 },
+        nextAction: stepAction("recovery", 0, { name: "Failed employer " + (i + 1), contact: "" }),
+        activity: [{ date: off(-60 + i), type: "note", text: "Compliance stopped: " + f.reason }],
+        notes: f.note + " Rename this record to the real employer."
+      });
+    });
+
+    return {
+      version: 1,
+      employers: employers,
+      revPerActive: 900,
+      seededAt: new Date().toISOString(),
+      revPerEmployee: 300,
+      baseline: {
+        asOf: "2026-10-27",
+        employersTotal: 11,
+        employersPassed: 4,
+        employersLive: 3,
+        employees: 106,
+        revenue: 31905,
+        signups30d: 25,
+        kyc: 24,
+        savingsFunded: 2,
+        retained30d: 1,
+        ewaPenetration: 0.33,
+        savingsRate: 0.08,
+        repayment: 0.064
+      },
+      targets: {
+        weekly: { whatsapp: 25, calls: 15, demos: 3, compliancePacks: 2, onboardings: 1 },
+        quarter: { employersLive: 8, activeEmployees: 400, revenuePerEmployee: 450, compliancePass: 0.7, activation: 0.5, savingsRate: 0.25, retention: 0.4, repayment: 0.9 }
+      },
+      tasks: [
+        {
+          id: "t_list",
+          title: "Build a 25-school target list",
+          detail: "Ikeja, Surulere and Lekki. Use the sourcing links, add name + phone + staff count, and start the cadence.",
+          due: off(0),
+          type: "admin",
+          done: false,
+          route: "pipeline",
+          anchor: "source"
+        },
+        {
+          id: "t_rename",
+          title: "Rename and triage the 7 failed employers",
+          detail: "Replace the placeholders with real names, then mark each one fixable or not a fit.",
+          due: off(0),
+          type: "admin",
+          done: false,
+          route: "compliance",
+          anchor: "triage"
+        },
+        {
+          id: "t_activation",
+          title: "Book the Will'B' staff session",
+          detail: "Call the proprietor and lock a 20-minute slot on go-live day. Bring the session script.",
+          due: off(0),
+          type: "admin",
+          done: false,
+          route: "playbook",
+          anchor: "activation"
+        },
+        {
+          id: "t_log",
+          title: "Log this week's numbers",
+          detail: "Calls, WhatsApps, demos, compliance packs. The weekly scorecard is only as good as the log.",
+          due: off(2),
+          type: "admin",
+          done: false,
+          route: "numbers",
+          anchor: "scorecard"
+        }
+      ],
+      log: {},
+      checklist: {
+        "Booked staff sessions at the 3 live employers": false,
+        "Listed 25 schools with phone numbers": false,
+        "Sent the first 10 WhatsApp openers": false,
+        "Booked the first demo": false,
+        "Sent one compliance pack this week": false
+      }
+    };
+  }
+
+  return {
+    DAY, iso, off, STAGES, REQUIRED_CHECKS, OPTIONAL_CHECKS, QUALIFICATION,
+    SEQUENCES, SCRIPTS, OBJECTIONS, SOURCING, RED_FLAGS, FAILURES,
+    blankChecks, allChecks, stepAction, seed
+  };
+})();
+
+</script>
+<script>
+/* ChequeIn Sales OS — application logic. No dependencies, no build step. */
+(function () {
+  "use strict";
+
+  const KEY = "chequein-sales-os-v1";
+  const $ = (sel, root) => (root || document).querySelector(sel);
+  const $$ = (sel, root) => Array.from((root || document).querySelectorAll(sel));
+  const today = () => CI.iso(new Date());
+  const parse = (d) => new Date(d + "T00:00:00");
+  const addDays = (d, n) => CI.iso(new Date(parse(d).getTime() + n * CI.DAY));
+  const diffDays = (a, b) => Math.round((parse(a) - parse(b)) / CI.DAY);
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const naira = (n) => "₦" + Math.round(Number(n) || 0).toLocaleString("en-NG");
+  const num = (n) => Number(n || 0).toLocaleString("en-NG");
+  const pct = (n) => Math.round((Number(n) || 0) * 100) + "%";
+  const sum = (arr, fn) => arr.reduce((t, x) => t + (Number(fn(x)) || 0), 0);
+  const spell = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  const TYPE_LABEL = { whatsapp: "WhatsApp", call: "Call", email: "Email", session: "Session", review: "Review", admin: "Admin" };
+  const TYPE_SHORT = { whatsapp: "WA", call: "CALL", email: "MAIL", session: "SESSION", review: "CHECK", admin: "TASK" };
+
+  /* ------------------------------------------------------------------ sync */
+  const SYNC = {
+    enabled: !!window.CHEQUEIN_SYNC,
+    code: "",
+    editor: "",
+    version: 0,
+    status: "local",
+    ready: false,
+    dirty: false,
+    pushing: false,
+    queued: false,
+    applying: false,
+    conflict: null,
+    timer: null,
+    pollTimer: null,
+    failures: 0,
+    lastAt: null,
+    lastBy: ""
+  };
+  try {
+    SYNC.code = localStorage.getItem("chequein-team-code") || "";
+    SYNC.editor = localStorage.getItem("chequein-editor") || "";
+  } catch (e) { /* storage blocked — local mode */ }
+
+  /* ------------------------------------------------------------------ state */
+  let state = load();
+  const ui = { drawer: null, search: "", tab: "pitch", addOpen: false, bulkOpen: false, settingsOpen: false, route: null };
+
+  function load() {
+    let s = null;
+    try {
+      const raw = localStorage.getItem(KEY);
+      if (raw) s = JSON.parse(raw);
+    } catch (e) { s = null; }
+    if (!s || !Array.isArray(s.employers)) s = CI.seed();
+    s.tasks = s.tasks || [];
+    s.log = s.log || {};
+    s.checklist = s.checklist || {};
+    s.revPerActive = s.revPerActive || 900;
+    s.employers.forEach((e) => {
+      e.activity = e.activity || [];
+      e.metrics = e.metrics || { employees: 0, ewaActive: 0, savingsFunded: 0, revenue: 0 };
+      e.compliance = e.compliance || {};
+      e.compliance.checks = e.compliance.checks || CI.blankChecks();
+      e.qualification = e.qualification || {};
+    });
+    return s;
+  }
+
+  function persistLocal() {
+    try { localStorage.setItem(KEY, JSON.stringify(state)); }
+    catch (e) { toast("Could not save — storage is blocked in this browser."); }
+  }
+
+  function save() {
+    persistLocal();
+    if (SYNC.enabled && SYNC.ready && !SYNC.applying) {
+      SYNC.dirty = true;
+      syncQueue();
+    }
+  }
+
+  /* ------------------------------------------------------------------ dates */
+  function isoWeek(d) {
+    const t = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    const day = t.getUTCDay() || 7;
+    t.setUTCDate(t.getUTCDate() + 4 - day);
+    const y0 = new Date(Date.UTC(t.getUTCFullYear(), 0, 1));
+    return Math.ceil(((t - y0) / 86400000 + 1) / 7);
+  }
+  function longDate(d) {
+    return d.toLocaleDateString("en-GB", { weekday: "long", day: "numeric", month: "long" });
+  }
+  function shortDate(s) {
+    return parse(s).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+  }
+  function dueLabel(s) {
+    const n = diffDays(s, today());
+    if (n < 0) return Math.abs(n) + "d overdue";
+    if (n === 0) return "Today";
+    if (n === 1) return "Tomorrow";
+    return parse(s).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" });
+  }
+
+  /* ------------------------------------------------------------------ domain */
+  const stageOrder = ["lead", "contacted", "qualified", "demo", "compliance", "live"];
+  const stage = (id) => CI.STAGES.find((s) => s.id === id) || CI.STAGES[0];
+  const nextStage = (id) => {
+    const i = stageOrder.indexOf(id);
+    return i >= 0 && i < stageOrder.length - 1 ? stageOrder[i + 1] : null;
+  };
+  const requiredMissing = (e) => CI.REQUIRED_CHECKS.filter((c) => e.compliance.checks[c.id] !== true);
+  const compliancePassed = (e) => requiredMissing(e).length === 0;
+  const complianceStatus = (e) => {
+    if (e.stage === "lost") return "closed";
+    if (compliancePassed(e)) return "passed";
+    if (e.compliance.failReason) return "failed";
+    return "pending";
+  };
+  function qualScore(e) {
+    const q = e.qualification || {};
+    let s = 0;
+    if (Number(q.staffCount) >= 10) s += 2;
+    if (q.paidByTransfer === true) s += 2;
+    if (q.decisionMaker === true) s += 2;
+    if (q.registered === true) s += 2;
+    if (q.noDeductions === true) s += 1;
+    if (q.consentPossible === true) s += 1;
+    return s;
+  }
+  function qualComplete(e) {
+    const q = e.qualification || {};
+    return !!(Number(q.staffCount) > 0 && Number(q.monthlyPayroll) > 0 &&
+      q.paidByTransfer !== null && q.paidByTransfer !== undefined &&
+      q.decisionMaker !== null && q.decisionMaker !== undefined &&
+      q.registered !== null && q.registered !== undefined &&
+      q.noDeductions !== null && q.noDeductions !== undefined &&
+      q.consentPossible !== null && q.consentPossible !== undefined);
+  }
+  const isQualified = (e) => qualComplete(e) && qualScore(e) >= 7 &&
+    e.qualification.paidByTransfer === true && e.qualification.registered === true &&
+    Number(e.qualification.staffCount) >= 10;
+
+  function gateTo(emp, to) {
+    if (!to) return { ok: false, message: "This employer is already at the final stage." };
+    if (to === "contacted" && !(emp.phone || emp.email)) return { ok: false, message: "Add a phone number or email first." };
+    if (to === "qualified" && !isQualified(emp)) {
+      return { ok: false, message: "Qualification gate: complete all 7 answers, score 7/10+, 10+ staff, transfer payroll and CAC/TIN. Currently " + qualScore(emp) + "/10." };
+    }
+    if (to === "compliance" && !emp.qualification.demoDone) return { ok: false, message: "Mark the demo as completed below before moving to compliance." };
+    if (to === "live" && !compliancePassed(emp)) {
+      const missing = requiredMissing(emp).map((c) => c.label).join(", ");
+      return { ok: false, message: "Compliance gate: still missing " + missing + "." };
+    }
+    return { ok: true, message: "" };
+  }
+
+  function advance(emp) {
+    const to = nextStage(emp.stage);
+    const g = gateTo(emp, to);
+    if (!g.ok) { toast(g.message); return; }
+    emp.stage = to;
+    pushActivity(emp, "stage", "Moved to " + stage(to).label);
+    if (to === "live") {
+      if (!emp.metrics.employees) emp.metrics.employees = Number(emp.staffEstimate) || 0;
+      if (!emp.metrics.revenue) emp.metrics.revenue = emp.metrics.employees * Number(state.revPerEmployee || 300);
+      emp.nextAction = CI.stepAction("activation", 0, emp);
+    } else if ((to === "demo" || to === "compliance") && emp.nextAction && emp.nextAction.seq === "school") {
+      emp.nextAction = null;
+    }
+    save();
+    render();
+    toast("Moved to " + stage(to).label);
+  }
+
+  function seqFor(emp) {
+    if (emp.stage === "live") return "activation";
+    if (complianceStatus(emp) === "failed" || (emp.stage === "compliance" && emp.compliance.failReason)) return "recovery";
+    return "school";
+  }
+
+  function completeEmployerAction(emp) {
+    const na = emp.nextAction;
+    if (!na) return;
+    pushActivity(emp, "done", (TYPE_LABEL[na.type] || "Action") + ": " + na.title);
+    if (emp.stage === "lead" && na.seq === "school") emp.stage = "contacted";
+    const seq = CI.SEQUENCES[na.seq];
+    const next = na.step + 1;
+    if (seq && next < seq.steps.length) {
+      emp.nextAction = CI.stepAction(na.seq, next, emp);
+      toast("Done. Next: " + emp.nextAction.title + " · " + dueLabel(emp.nextAction.due));
+    } else {
+      emp.nextAction = null;
+      toast("Cadence finished. Restart it or move the employer forward.");
+    }
+    save();
+    render();
+  }
+
+  function snoozeAction(emp) {
+    if (!emp.nextAction) return;
+    emp.nextAction.due = addDays(today(), 1);
+    save();
+    render();
+    toast("Snoozed to tomorrow.");
+  }
+
+  function restartCadence(emp) {
+    emp.nextAction = CI.stepAction(seqFor(emp), 0, emp);
+    pushActivity(emp, "note", "Cadence restarted");
+    save();
+    render();
+    toast("Cadence restarted.");
+  }
+
+  function pushActivity(emp, type, text) {
+    emp.activity = emp.activity || [];
+    emp.activity.unshift({ date: today(), type: type, text: text });
+  }
+
+  function allActions() {
+    const list = [];
+    state.employers.forEach((e) => {
+      if (e.stage !== "lost" && e.nextAction) {
+        list.push(Object.assign({}, e.nextAction, { kind: "employer", emp: e, key: e.id }));
+      }
+    });
+    state.tasks.forEach((t) => {
+      if (!t.done) list.push(Object.assign({}, t, { kind: "task", key: t.id }));
+    });
+    return list.sort((a, b) => String(a.due).localeCompare(String(b.due)));
+  }
+
+  function currentNumbers() {
+    const live = state.employers.filter((e) => e.stage === "live");
+    const employees = sum(live, (e) => e.metrics.employees);
+    const revenue = sum(live, (e) => e.metrics.revenue);
+    return {
+      live: live.length,
+      employees: employees,
+      revenue: revenue,
+      perEmployee: employees ? Math.round(revenue / employees) : 0,
+      ewa: sum(live, (e) => e.metrics.ewaActive),
+      savings: sum(live, (e) => e.metrics.savingsFunded)
+    };
+  }
+
+  function last7() {
+    const out = { whatsapp: 0, calls: 0, demos: 0, packs: 0 };
+    for (let i = 0; i < 7; i++) {
+      const l = state.log[addDays(today(), -i)];
+      if (!l) continue;
+      out.whatsapp += Number(l.whatsapp) || 0;
+      out.calls += Number(l.calls) || 0;
+      out.demos += Number(l.demos) || 0;
+      out.packs += Number(l.packs) || 0;
+    }
+    return out;
+  }
+
+  function logToday() {
+    const d = today();
+    if (!state.log[d]) state.log[d] = { whatsapp: 0, calls: 0, demos: 0, packs: 0 };
+    return state.log[d];
+  }
+
+  /* ------------------------------------------------------------------ icons */
+  const ICONS = {
+    sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    flow: '<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/><path d="M10 6.5h4a3 3 0 0 1 3 3V14M6.5 10v4a3 3 0 0 0 3 3H14"/>',
+    shield: '<path d="M12 22s8-3.5 8-10V5l-8-3-8 3v7c0 6.5 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>',
+    book: '<path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v18H6.5A2.5 2.5 0 0 0 4 22V4.5Z"/><path d="M4 17.5h16"/>',
+    chart: '<path d="M3 21h18M6 21V10M12 21V4M18 21v-7"/>',
+    check: '<path d="m4 12 5 5L20 6"/>',
+    clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    arrow: '<path d="M5 12h14M13 6l6 6-6 6"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>'
+  };
+  function icon(name, cls) {
+    return '<svg class="ico ' + (cls || "") + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (ICONS[name] || "") + "</svg>";
+  }
+
+  /* ------------------------------------------------------------------ shared bits */
+  function stageBadge(id) {
+    const s = stage(id);
+    return '<span class="badge stage-' + s.id + '">' + esc(s.label) + "</span>";
+  }
+  function complianceBadge(e) {
+    const st = complianceStatus(e);
+    const label = st === "passed" ? "Compliance passed" : st === "failed" ? "Compliance failed" : st === "closed" ? "Closed" : "Compliance in progress";
+    return '<span class="badge comp-' + st + '">' + label + "</span>";
+  }
+  function dueClass(d) {
+    const n = diffDays(d, today());
+    return n < 0 ? "overdue" : n === 0 ? "today" : "soon";
+  }
+  function progressBar(value, max, cls) {
+    const w = max > 0 ? Math.min(100, Math.round((value / max) * 100)) : 0;
+    return '<div class="bar ' + (cls || "") + '"><span style="width:' + w + '%"></span></div>';
+  }
+
+  function displayStepTitle(t) {
+    return String(t)
+      .replace(" to {contact}", "")
+      .replace(" to {name}", "")
+      .replace(" at {name}", "")
+      .replace("{contact}", "the contact")
+      .replace("{name}", "the employer");
+  }
+
+  function scriptCard(id, opts) {
+    const s = CI.SCRIPTS[id];
+    if (!s) return "";
+    const o = opts || {};
+    return (
+      '<div class="script-card">' +
+      '<div class="script-head"><div><div class="script-title">' + esc(s.title) + "</div>" +
+      '<div class="script-meta">' + esc(s.channel) + (s.when ? " · " + esc(s.when) : "") + "</div></div>" +
+      '<button class="copy-btn" data-action="copy" data-script="' + id + '" type="button">Copy</button></div>' +
+      (s.subject ? '<div class="script-subject">Subject: ' + esc(s.subject) + "</div>" : "") +
+      '<pre class="script-body">' + esc(s.body) + "</pre>" +
+      (o.next ? o.next : "") +
+      "</div>"
+    );
+  }
+
+  /* ------------------------------------------------------------------ TODAY */
+  function viewToday() {
+    const now = currentNumbers();
+    const acts = allActions();
+    const overdue = acts.filter((a) => diffDays(a.due, today()) < 0);
+    const dueToday = acts.filter((a) => diffDays(a.due, today()) === 0);
+    const next3 = acts.filter((a) => {
+      const n = diffDays(a.due, today());
+      return n > 0 && n <= 3;
+    });
+    const week = last7();
+    const t = state.targets.weekly;
+    const dueNow = overdue.length + dueToday.length;
+    const live = state.employers.filter((e) => e.stage === "live").length;
+    const triageLeft = state.employers.filter((e) => complianceStatus(e) === "failed" && e.compliance.fixable == null).length;
+
+    const words = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"];
+    let headline;
+    if (overdue.length) headline = overdue.length + " overdue.<br>Clear " + dueNow + " today.";
+    else if (dueNow) headline = (dueNow <= 10 ? words[dueNow] : String(dueNow)) + " " + (dueNow === 1 ? "action" : "actions") + "<br>before lunch.";
+    else headline = "Queue clear.<br>Find ten schools.";
+
+    const groups = [
+      { title: "Overdue", items: overdue, cls: "overdue" },
+      { title: "Today", items: dueToday, cls: "today" },
+      { title: "Next 3 days", items: next3, cls: "soon" }
+    ].filter((g) => g.items.length);
+
+    return (
+      '<section class="hero">' +
+      '<div class="hero-main">' +
+      '<div class="hero-eyebrow">' + esc(longDate(new Date())) + " · " + esc(isoWeek(new Date()) ? "Week " + isoWeek(new Date()) : "") + "</div>" +
+      "<h1>" + headline + "</h1>" +
+      '<p class="hero-sub">Free payroll is the door. Activation is the revenue. Every action in this queue points at the same number: naira per employee per month.</p>' +
+      '<div class="hero-actions"><button class="light-btn" data-action="open-add" type="button">+ Add employer</button>' +
+      '<button class="link-btn light" data-action="goto" data-route="pipeline" type="button">Source 25 targets ' + icon("arrow") + "</button></div>" +
+      "</div>" +
+      '<div class="hero-stats">' +
+      heroStat("Due now", dueNow, overdue.length ? overdue.length + " overdue" : "keep it at zero") +
+      heroStat("WhatsApp · 7d", week.whatsapp + " / " + t.whatsapp, week.whatsapp >= t.whatsapp ? "on pace" : t.whatsapp - week.whatsapp + " to go") +
+      heroStat("Calls · 7d", week.calls + " / " + t.calls, week.calls >= t.calls ? "on pace" : t.calls - week.calls + " to go") +
+      heroStat("Live payrolls", live, naira(now.revenue) + " / month") +
+      "</div></section>" +
+
+      '<div class="grid-main">' +
+      '<div class="col">' +
+      '<section class="card">' +
+      '<div class="card-head"><div><div class="eyebrow">Do this now</div><h2>Action queue</h2></div>' +
+      '<span class="pill">' + acts.length + " open</span></div>" +
+      (groups.length ? groups.map(actionGroup).join("") :
+        '<div class="empty"><div class="empty-icon">' + icon("check") + '</div><h3>Nothing scheduled</h3><p>Add employers and the 21-day cadence will fill this queue for you.</p><button class="primary-btn" data-action="open-add" type="button">Add your first employer</button></div>') +
+      (acts.length > dueNow + next3.length ? '<div class="queue-foot">' + (acts.length - dueNow - next3.length) + " more scheduled later. " + '<button class="link-btn" data-action="goto" data-route="pipeline" type="button">See pipeline ' + icon("arrow") + "</button></div>" : "") +
+      "</section>" +
+
+      '<section class="card">' +
+      '<div class="card-head"><div><div class="eyebrow">Daily discipline</div><h2>Log today</h2></div>' +
+      '<span class="muted small">' + esc(shortDate(today())) + "</span></div>" +
+      '<div class="counter-grid">' +
+      counter("whatsapp", "WhatsApp sent", logToday().whatsapp) +
+      counter("calls", "Calls made", logToday().calls) +
+      counter("demos", "Demos run", logToday().demos) +
+      counter("packs", "Compliance packs", logToday().packs) +
+      "</div>" +
+      '<p class="muted small counter-note">The scorecard is only as honest as this log. Count what you actually sent, not what you planned.</p>' +
+      "</section>" +
+      "</div>" +
+
+      '<div class="col side">' +
+      '<section class="card">' +
+      '<div class="card-head"><div><div class="eyebrow">Last 7 days</div><h2>This week</h2></div></div>' +
+      '<div class="metric-list">' +
+      metricRow("WhatsApp", week.whatsapp, t.whatsapp) +
+      metricRow("Calls", week.calls, t.calls) +
+      metricRow("Demos", week.demos, t.demos) +
+      metricRow("Compliance packs", week.packs, t.compliancePacks) +
+      "</div></section>" +
+
+      '<section class="card offer-card">' +
+      '<div class="eyebrow">The offer</div>' +
+      '<blockquote>“Free payroll for the school. Financial wellbeing for the staff. We earn when they save or use salary they have already earned.”</blockquote>' +
+      '<button class="ghost-btn" data-action="goto" data-route="playbook" type="button">Open the playbook ' + icon("arrow") + "</button>" +
+      "</section>" +
+
+      '<section class="card">' +
+      '<div class="card-head"><div><div class="eyebrow">First 30 minutes</div><h2>Start here</h2></div><span class="pill">' + doneChecklist() + "/" + Object.keys(state.checklist).length + "</span></div>" +
+      '<div class="checklist">' +
+      Object.keys(state.checklist).map((k, i) =>
+        '<label class="check-item"><input type="checkbox" data-action="checklist" data-key="' + esc(k) + '" ' + (state.checklist[k] ? "checked" : "") + ">" +
+        "<span>" + esc(k) + "</span></label>").join("") +
+      "</div></section>" +
+
+      (triageLeft ? '<section class="card alert-card"><div class="alert-head">' + icon("shield") + "<div><strong>" + triageLeft + " failed employers still unclassified</strong><p>Fixable or not a fit — decide this week. They are not a pipeline until you do.</p></div></div>" +
+        '<button class="ghost-btn" data-action="goto" data-route="compliance" type="button">Triage them ' + icon("arrow") + "</button></section>" : "") +
+      "</div></div>"
+    );
+  }
+
+  function heroStat(label, value, sub) {
+    return '<div class="hero-stat"><span>' + esc(label) + "</span><strong>" + esc(value) + "</strong><em>" + esc(sub) + "</em></div>";
+  }
+  function doneChecklist() {
+    return Object.keys(state.checklist).filter((k) => state.checklist[k]).length;
+  }
+  function metricRow(label, value, target) {
+    const ok = value >= target;
+    return '<div class="metric-row"><div class="metric-top"><span>' + esc(label) + "</span><strong class=\"" + (ok ? "good" : "") + "\">" + value + " <i>/ " + target + "</i></strong></div>" +
+      progressBar(value, target, ok ? "good" : "") + "</div>";
+  }
+  function counter(metric, label, value) {
+    return '<div class="counter"><div class="counter-label">' + esc(label) + '</div>' +
+      '<div class="counter-row"><button class="step-btn" data-action="log" data-metric="' + metric + '" data-delta="-1" type="button" aria-label="Decrease">−</button>' +
+      '<span class="counter-val" id="count-' + metric + '">' + value + "</span>" +
+      '<button class="step-btn" data-action="log" data-metric="' + metric + '" data-delta="1" type="button" aria-label="Increase">+</button></div></div>';
+  }
+  function actionGroup(g) {
+    return '<div class="queue-group"><div class="queue-title ' + g.cls + '">' + esc(g.title) + '<span>' + g.items.length + "</span></div>" +
+      g.items.map(actionRow).join("") + "</div>";
+  }
+  function actionRow(a) {
+    const emp = a.kind === "employer" ? a.emp : null;
+    const name = emp ? emp.name : null;
+    const detail = a.detail || "";
+    const isTask = a.kind === "task";
+    return '<div class="action-row">' +
+      '<span class="type-chip tc-' + esc(a.type || "admin") + '">' + esc(TYPE_SHORT[a.type] || "TASK") + "</span>" +
+      '<div class="action-main" data-action="' + (isTask ? "open-task" : "open") + '" ' + (isTask ? 'data-task="' + esc(a.id) + '"' : 'data-emp="' + esc(emp.id) + '"') + ' role="button" tabindex="0">' +
+      '<div class="action-title">' + esc(a.title) + "</div>" +
+      '<div class="action-meta">' + (name ? esc(name) + " · " : "") + esc(detail) +
+      (a.script ? ' · <span class="has-script">script attached</span>' : "") + "</div>" +
+      "</div>" +
+      '<span class="due ' + dueClass(a.due) + '">' + esc(dueLabel(a.due)) + "</span>" +
+      '<div class="action-btns">' +
+      '<button class="done-btn" data-action="' + (isTask ? "complete-task" : "complete") + '" ' + (isTask ? 'data-task="' + esc(a.id) + '"' : 'data-emp="' + esc(emp.id) + '"') + ' type="button">Done</button>' +
+      '<button class="snooze-btn" data-action="' + (isTask ? "snooze-task" : "snooze") + '" ' + (isTask ? 'data-task="' + esc(a.id) + '"' : 'data-emp="' + esc(emp.id) + '"') + ' type="button" title="Snooze one day">+1d</button>' +
+      "</div></div>";
+  }
+
+  /* ------------------------------------------------------------------ PIPELINE */
+  function viewPipeline() {
+    const live = state.employers.filter((e) => e.stage !== "lost");
+    const cols = CI.STAGES.filter((s) => s.id !== "lost");
+    const lost = state.employers.filter((e) => e.stage === "lost");
+    return (
+      '<header class="page-head">' +
+      '<div><div class="eyebrow">Where the money comes from</div><h1>Pipeline</h1><p>Source in batches, qualify before you demo, and never sell past the compliance gate.</p></div>' +
+      '<div class="head-actions"><button class="ghost-btn" data-action="open-bulk" type="button">Paste a list</button>' +
+      '<button class="primary-btn" data-action="open-add" type="button">+ Add employer</button></div></header>' +
+
+      '<section class="card source-card" id="source">' +
+      '<div class="card-head"><div><div class="eyebrow">Step one</div><h2>Find 25 employers this week</h2></div><span class="pill">' + live.length + " in pipeline</span></div>" +
+      '<p class="muted">Schools first: 10–150 staff, monthly payroll, salaries paid by transfer. Two of your three live employers are schools — copy what already works.</p>' +
+      '<div class="source-grid">' + CI.SOURCING.map((s) =>
+        '<a class="source-link" href="' + esc(s.href) + '" target="_blank" rel="noopener">' +
+        "<strong>" + esc(s.label) + "</strong><span>" + esc(s.detail) + "</span>" + icon("arrow") + "</a>").join("") +
+      "</div>" +
+      '<div class="source-tip">' + icon("check") + "<span><strong>Qualify on the first call.</strong> Cash payroll, no CAC or no TIN means they will fail the gate — park them and keep moving.</span></div>" +
+      "</section>" +
+
+      '<div class="board-tools"><input class="search" id="pipe-search" placeholder="Search employer, contact or area…" autocomplete="off">' +
+      '<span class="muted small">Click any card to open the record. Stages are gated.</span></div>' +
+
+      '<div class="board">' + cols.map((s) => {
+        const items = state.employers.filter((e) => e.stage === s.id);
+        return '<div class="board-col"><div class="board-col-head"><span class="dot dot-' + s.id + '"></span><strong>' + esc(s.label) + "</strong><em>" + items.length + "</em></div>" +
+          '<div class="board-col-hint">' + esc(s.hint) + "</div>" +
+          (items.length ? items.map(boardCard).join("") : '<div class="board-empty">Nothing here yet</div>') +
+          "</div>";
+      }).join("") + "</div>" +
+
+      (lost.length ? '<div class="lost-strip"><span class="muted small">Parked / lost · ' + lost.length + "</span>" +
+        lost.map((e) => '<button class="lost-chip" data-action="open" data-emp="' + esc(e.id) + '" type="button">' + esc(e.name) + "</button>").join("") + "</div>" : "")
+    );
+  }
+
+  function boardCard(e) {
+    const st = complianceStatus(e);
+    const due = e.nextAction ? dueLabel(e.nextAction.due) : "No next action";
+    return '<article class="employer-card" data-action="open" data-emp="' + esc(e.id) + '" data-search="' + esc((e.name + " " + (e.contact || "") + " " + (e.city || "")).toLowerCase()) + '" tabindex="0">' +
+      (st === "failed" ? '<div class="ec-top"><span class="mini-flag">Gate failed</span></div>' : "") +
+      '<h3>' + esc(e.name) + "</h3>" +
+      '<div class="ec-meta">' + esc(e.segment || "—") + (e.city ? " · " + esc(e.city) : "") + "</div>" +
+      '<div class="ec-foot"><span>' + (Number(e.staffEstimate) ? num(e.staffEstimate) + " staff" : "staff unknown") + "</span>" +
+      '<span class="due ' + dueClass(e.nextAction ? e.nextAction.due : today()) + '">' + esc(due) + "</span></div>" +
+      "</article>";
+  }
+
+  /* ------------------------------------------------------------------ COMPLIANCE */
+  function viewCompliance() {
+    const failed = state.employers.filter((e) => complianceStatus(e) === "failed");
+    const passed = state.employers.filter((e) => complianceStatus(e) === "passed" && e.stage === "live").length;
+    const triaged = failed.filter((e) => e.compliance.fixable != null).length;
+    const unclassified = failed.length - triaged;
+    return (
+      '<header class="page-head">' +
+      '<div><div class="eyebrow">The gate that killed 7 of 11</div><h1>Compliance</h1><p>Seven of eleven employers failed after they signed up. That is a sales problem, not just an operations problem — so the gate now sits in front of the sale.</p></div>' +
+      "</header>" +
+
+      '<div class="stat-row">' +
+      stat("Signed up", "11", "historical") +
+      stat("Passed", "4", "36% pass rate", "warn") +
+      stat("Live &amp; paying", String(passed), "current pipeline") +
+      stat("Failed", String(failed.length), unclassified + " untriaged", "bad") +
+      "</div>" +
+
+      '<div class="grid-two">' +
+      '<section class="card">' +
+      '<div class="card-head"><div><div class="eyebrow">Before the first demo</div><h2>The pre-qualification gate</h2></div></div>' +
+      '<div class="gate-steps">' +
+      '<div class="gate-step"><span>1</span><div><strong>Ask the six questions on the first call.</strong><p>Staff count, payroll value, transfer vs cash, decision maker, CAC/TIN, existing deductions.</p></div></div>' +
+      '<div class="gate-step"><span>2</span><div><strong>Score 7/10 or park them.</strong><p>Below 10 staff or cash payroll is a no for now. Politely close and revisit next term.</p></div></div>' +
+      '<div class="gate-step"><span>3</span><div><strong>Collect documents before the demo.</strong><p>If they cannot produce CAC, TIN and a staff list, the demo is a waste of both calendars.</p></div></div>' +
+      '<div class="gate-step"><span>4</span><div><strong>No exceptions at go-live.</strong><p>All eight required checks must pass. The partner bank will ask; better you ask first.</p></div></div>' +
+      "</div></section>" +
+
+      '<section class="card">' +
+      '<div class="card-head"><div><div class="eyebrow">Copy and send</div><h2>Document request</h2></div>' +
+      '<button class="copy-btn" data-action="copy" data-script="wa_docs" type="button">Copy</button></div>' +
+      '<p class="muted small">Send this after the qualification call, before you book the demo.</p>' +
+      '<ul class="doc-list">' + CI.REQUIRED_CHECKS.map((c) => "<li><strong>" + esc(c.label) + "</strong><span>" + esc(c.detail) + "</span></li>").join("") + "</ul>" +
+      "</section></div>" +
+
+      '<section class="card" id="triage">' +
+      '<div class="card-head"><div><div class="eyebrow">Clean up the past</div><h2>Triage the seven</h2></div><span class="pill">' + triaged + " / " + failed.length + " classified</span></div>" +
+      (failed.length ? '<div class="triage-table">' + failed.map(triageRow).join("") + "</div>" :
+        '<div class="empty small-empty"><h3>Nothing failed in the pipeline</h3><p>Either compliance is clean or the failed records were removed.</p></div>') +
+      '<p class="muted small triage-note">Rename each record to the real employer first. A reason is not a diagnosis: “documents missing” is not fixable until you know which document.</p>' +
+      "</section>" +
+
+      '<section class="card">' +
+      '<div class="card-head"><div><div class="eyebrow">Say no earlier</div><h2>Red flags</h2></div></div>' +
+      '<div class="flag-grid">' + CI.RED_FLAGS.map((f, i) =>
+        '<div class="flag"><span class="flag-num">0' + (i + 1) + "</span><div><strong>" + esc(f.title) + "</strong><p>" + esc(f.detail) + "</p></div></div>").join("") +
+      "</div></section>"
+    );
+  }
+  function stat(label, value, sub, cls) {
+    return '<div class="stat ' + (cls || "") + '"><span>' + label + '</span><strong>' + value + "</strong><em>" + sub + "</em></div>";
+  }
+  function triageRow(e) {
+    const fix = e.compliance.fixable;
+    return '<div class="triage-row">' +
+      '<div class="triage-name"><button class="link-btn" data-action="open" data-emp="' + esc(e.id) + '" type="button">' + esc(e.name) + "</button>" +
+      '<span class="muted small">' + esc(e.compliance.failReason || "Reason not recorded") + "</span></div>" +
+      '<div class="seg" role="group" aria-label="Fixable?">' +
+      '<button class="seg-btn ' + (fix === true ? "active" : "") + '" data-action="fixable" data-emp="' + esc(e.id) + '" data-value="yes" type="button">Fixable</button>' +
+      '<button class="seg-btn ' + (fix === false ? "active danger" : "") + '" data-action="fixable" data-emp="' + esc(e.id) + '" data-value="no" type="button">Not a fit</button>' +
+      "</div>" +
+      '<div class="triage-next">' + (e.nextAction ? '<span class="due ' + dueClass(e.nextAction.due) + '">' + esc(dueLabel(e.nextAction.due)) + "</span>" : '<span class="muted small">No next action</span>') + "</div>" +
+      "</div>";
+  }
+
+  /* ------------------------------------------------------------------ PLAYBOOK */
+  function viewPlaybook() {
+    const tabs = [
+      ["pitch", "The pitch"], ["qualify", "Qualify"], ["outreach", "Outreach"],
+      ["activate", "Activate"], ["objections", "Objections"], ["recovery", "Recovery"]
+    ];
+    let body = "";
+    if (ui.tab === "pitch") body = tabPitch();
+    if (ui.tab === "qualify") body = tabQualify();
+    if (ui.tab === "outreach") body = tabOutreach();
+    if (ui.tab === "activate") body = tabActivate();
+    if (ui.tab === "objections") body = tabObjections();
+    if (ui.tab === "recovery") body = tabRecovery();
+    return '<header class="page-head"><div><div class="eyebrow">Say it the same way every time</div><h1>Playbook</h1>' +
+      '<p>The exact words for the first call, the cadence, the staff session and the payday push. Copy, replace the brackets, send.</p></div></header>' +
+      '<div class="tabs">' + tabs.map((t) =>
+        '<button class="tab ' + (ui.tab === t[0] ? "active" : "") + '" data-action="tab" data-tab="' + t[0] + '" type="button">' + t[1] + "</button>").join("") +
+      "</div>" + body;
+  }
+
+  function tabPitch() {
+    return '<section class="card pitch-main"><div class="eyebrow">One breath</div>' +
+      '<h2 class="pitch-line">“We run your payroll for free. Your staff get a salary account with savings and access to pay they have already earned. The school pays nothing.”</h2>' +
+      '<p class="muted">Then stop talking. The next question is theirs.</p>' +
+      '<div class="pitch-cols">' +
+      '<div><h4>The school gets</h4><ul><li>Payroll run free, every month</li><li>Salaries paid on time</li><li>No setup fee, no per-staff fee</li><li>A cleaner payroll record</li></ul></div>' +
+      '<div><h4>The staff get</h4><ul><li>A salary account in their name</li><li>Savings on payday</li><li>Earned-salary access, capped</li><li>No loan-app spiral</li></ul></div>' +
+      '<div><h4>ChequeIn earns</h4><ul><li>When staff save</li><li>When staff use earned salary</li><li>Later: credit through the partner bank</li><li>Not from the employer</li></ul></div>' +
+      "</div></section>" +
+      '<div class="three-col">' +
+      '<section class="card"><div class="eyebrow">The maths that matters</div><h2>₦300 × staff</h2>' +
+      '<p class="muted small">Baseline revenue per employee per month. 106 employees produce ₦31,905.</p>' +
+      '<div class="math-box"><div><span>45 staff</span><strong>₦13,500</strong><em>per month</em></div><div><span>10 employers</span><strong>₦135,000</strong><em>per month</em></div></div>' +
+      '<p class="muted small">That is why a 45-person school is worth more than five 8-person shops — and why activation matters more than sign-ups.</p>' +
+      '<p class="muted small note">At 50% activation and ₦900 per active user, the same school is worth ₦20,250 a month.</p></section>' +
+      '<section class="card"><div class="eyebrow">Who to target</div><h2>Schools, 10–150 staff</h2>' +
+      '<ul class="tight"><li>Monthly payroll, paid by transfer</li><li>CAC + TIN already in place</li><li>Owner or proprietor reachable</li><li>Two of your three live employers are schools — copy that</li></ul>' +
+      '<p class="muted small note">Clinics and agencies are the next segment — same payroll profile, but check seasonality before you promise a payday rhythm.</p>' +
+      '<button class="ghost-btn" data-action="goto" data-route="pipeline" type="button">Open pipeline ' + icon("arrow") + "</button></section>" +
+      scriptCard("call_opener") +
+      "</div>" +
+      '<section class="card after-card"><div class="card-head"><div><div class="eyebrow">Between yes and first payroll</div><h2>What happens next</h2></div><span class="pill">the handoff is the sale</span></div>' +
+      '<div class="after-grid">' +
+      afterStep(1, "Same day", "Send the document list", "WhatsApp, not email. Photos are fine. Name the two documents you actually need first.") +
+      afterStep(2, "Within 48h", "Run compliance", "Send the pack to the partner bank and tell the employer what is still missing — not that it is 'in review'.") +
+      afterStep(3, "Day 3–5", "Book the staff session", "Put it in the calendar for payday week. The session is the product, not an afterthought.") +
+      afterStep(4, "Payday", "First payroll + session", "Run payroll, then 20 minutes with staff. Help the ones who get stuck, in person.") +
+      afterStep(5, "Payday +1", "Activation nudge", "Send the employer the list of staff who did not finish. Then send the payday savings push.") +
+      "</div>" +
+      '<p class="muted small after-note">Most deals die in this gap, not in the pitch. Keep the next action in the system and the employer never waits on you.</p></section>';
+  }
+
+  function afterStep(n, when, title, text) {
+    return '<div class="after-step"><div class="after-num">' + n + '</div><div class="after-when">' + esc(when) + '</div><h4>' + esc(title) + "</h4><p>" + esc(text) + "</p></div>";
+  }
+
+  function tabQualify() {
+    return '<div class="grid-two">' +
+      '<section class="card"><div class="card-head"><div><div class="eyebrow">12 minutes, first call</div><h2>The six questions</h2></div>' +
+      '<span class="pill">score ≥ 7/10</span></div>' +
+      '<div class="qual-table">' + CI.QUALIFICATION.map((q, i) =>
+        '<div class="qual-row"><span class="q-num">0' + (i + 1) + "</span><div><strong>" + esc(q.label) + "</strong><p>" + esc(q.hint) + "</p></div></div>").join("") + "</div>" +
+      '<p class="muted small">Staff count and payroll value are numbers. The rest are yes/no. Ask them in this order — the cash question early saves everyone time.</p></section>' +
+      '<section class="col"><div class="card">' +
+      '<div class="eyebrow">Kill criteria</div><h2>Say no early</h2>' +
+      '<ul class="stop-list"><li><strong>Cash payroll</strong> — no salary trail, no account.</li><li><strong>No CAC or TIN</strong> — will fail the bank review.</li><li><strong>Under 10 staff</strong> — revenue never covers onboarding.</li><li><strong>No decision maker</strong> — you are collecting maybes.</li><li><strong>Another lender’s deduction</strong> — partner sign-off first.</li></ul>' +
+      '<div class="callout">Seven of eleven employers failed after sign-up. Most of those conversations should never have reached compliance. Every “no” on this call buys you an hour for a school that can actually go live.</div>' +
+      "</div>" +
+      '<div class="card"><div class="eyebrow">The compliance question</div><h2>Ask for documents now</h2>' +
+      '<p class="muted small">“To get you live we need eight documents. Can you send photos of the CAC, TIN and staff list today? I’ll tell you exactly what’s missing before we book the demo.”</p>' +
+      '<button class="ghost-btn" data-action="copy" data-script="wa_docs" type="button">Copy the request</button></div></section></div>';
+  }
+
+  function tabOutreach() {
+    const seq = CI.SEQUENCES.school;
+    return '<section class="card">' +
+      '<div class="card-head"><div><div class="eyebrow">' + esc(seq.label) + '</div><h2>Eight touches, 21 days</h2></div>' +
+      '<span class="pill">WhatsApp first</span></div>' +
+      '<p class="muted">The cadence schedules itself when you add an employer. Each touch below is already written. Do not skip the break-up — it is the one that gets replies.</p>' +
+      '<div class="timeline">' + seq.steps.map((s, i) => {
+        const script = s.script ? CI.SCRIPTS[s.script] : null;
+        return '<div class="tl-item"><div class="tl-dot">' + (i + 1) + "</div><div class=\"tl-body\">" +
+          '<div class="tl-head"><span class="type-chip tc-' + s.type + '">' + esc(TYPE_SHORT[s.type]) + "</span>" +
+          "<strong>" + esc(displayStepTitle(s.title)) + "</strong><em>Day " + s.gap + "</em></div>" +
+          '<p class="muted small">' + esc(s.detail) + "</p>" +
+          (script ? '<details class="inline-script"><summary>View script · ' + esc(script.channel) + "</summary><pre>" + esc(script.body) + '</pre><button class="copy-btn" data-action="copy" data-script="' + s.script + '" type="button">Copy</button></details>' : "") +
+          "</div></div>";
+      }).join("") + "</div></section>" +
+      '<div class="grid-two"><section class="card"><h2>Send it well</h2><ul class="tight">' +
+      "<li>WhatsApp before 9am — that is when administrators do admin.</li><li>One message, one ask. Never two questions.</li><li>Voice notes after a reply; they convert better than paragraphs.</li><li>Log every send in Today. The scorecard depends on it.</li></ul></section>" +
+      '<section class="card"><h2>The only metric</h2><p class="muted">Demos booked per 25 messages. If it is under one, the list is wrong — not the script. Change the list before you change the words.</p>' +
+      '<div class="math-box"><div><span>25 sent</span><strong>1 demo</strong><em>minimum</em></div><div><span>8 demos</span><strong>2 live</strong><em>target</em></div></div></section></div>';
+  }
+
+  function tabActivate() {
+    const seq = CI.SEQUENCES.activation;
+    return '<section class="card">' +
+      '<div class="card-head"><div><div class="eyebrow">' + esc(seq.label) + '</div><h2>Sign-up is not activation</h2></div><span class="pill">8% save · 33% EWA</span></div>' +
+      '<p class="muted">24 of 25 recent sign-ups completed KYC. Two funded savings. One came back within 30 days. The gap is not the app — it is the absence of a human at the moment salary lands.</p>' +
+      '<div class="timeline compact">' + seq.steps.map((s, i) => {
+        const script = s.script ? CI.SCRIPTS[s.script] : null;
+        return '<div class="tl-item"><div class="tl-dot">' + (i + 1) + "</div><div class=\"tl-body\">" +
+          '<div class="tl-head"><span class="type-chip tc-' + s.type + '">' + esc(TYPE_SHORT[s.type]) + "</span>" +
+          "<strong>" + esc(displayStepTitle(s.title)) + "</strong><em>Day " + s.gap + "</em></div>" +
+          '<p class="muted small">' + esc(s.detail) + "</p>" +
+          (script ? '<details class="inline-script"><summary>View script</summary><pre>' + esc(script.body) + '</pre><button class="copy-btn" data-action="copy" data-script="' + s.script + '" type="button">Copy</button></details>' : "") +
+          "</div></div>";
+      }).join("") + "</div></section>" +
+      '<div class="grid-two">' + scriptCard("activation_session") + scriptCard("payday_push") + "</div>" +
+      '<section class="card callout-card"><div class="eyebrow">The rule</div><p class="big-quote">“A new employer without a staff session is a payroll, not a customer. The session is the product.”</p></section>';
+  }
+
+  function tabObjections() {
+    return '<div class="grid-two"><section class="card"><div class="eyebrow">Expect these</div><h2>Objections</h2>' +
+      CI.OBJECTIONS.map((o) => '<details class="objection"><summary>' + esc(o.q) + "</summary><p>" + esc(o.a) + '</p><button class="copy-btn" data-action="copy-text" data-text="' + esc(o.a) + '" type="button">Copy answer</button></details>').join("") +
+      "</section>" +
+      '<section class="col"><div class="card"><div class="eyebrow">Tone</div><h2>How to say it</h2><ul class="tight">' +
+      "<li>Slow down on “free”. Let the silence do the work.</li><li>Never argue with “we already have someone”. Offer a parallel month.</li><li>Do not defend the EWA fee. Explain the cap and the alternative.</li><li>If they are cash-paid, say no in the first call. Politely.</li><li>Ask for the decision maker by name. “Who signs payroll?”</li></ul></div>" +
+      '<div class="card"><div class="eyebrow">After the demo</div><h2>The close</h2><p class="muted small">“I’ll send the document list today. If you send the CAC, TIN and staff list by Friday, I can hold an onboarding slot for the first week of next month. Does that work?”</p>' +
+      '<button class="ghost-btn" data-action="copy" data-script="wa_docs" type="button">Copy document list</button></div></section></div>';
+  }
+
+  function tabRecovery() {
+    return '<div class="grid-two"><section class="card"><div class="eyebrow">The seven</div><h2>Triage, don’t re-sell</h2>' +
+      '<p class="muted">These employers already said yes once. Do not pitch them again — find the exact blocker and remove it.</p>' +
+      '<div class="timeline compact">' + CI.SEQUENCES.recovery.steps.map((s, i) =>
+        '<div class="tl-item"><div class="tl-dot">' + (i + 1) + '</div><div class="tl-body"><div class="tl-head"><span class="type-chip tc-' + s.type + '">' + esc(TYPE_SHORT[s.type]) + "</span><strong>" + esc(displayStepTitle(s.title)) + "</strong><em>Day " + s.gap + "</em></div><p class=\"muted small\">" + esc(s.detail) + "</p></div></div>").join("") +
+      "</div></section>" +
+      '<section class="col">' + scriptCard("recovery_call") + scriptCard("recovery_docs") + "</section></div>" +
+      '<section class="card"><div class="eyebrow">Decision rule</div><h2>Fixable or out</h2>' +
+      '<div class="decision-grid"><div><strong>Fixable</strong><p>Missing or expired document, name mismatch, consent not collected. Give it 14 days and a named next action.</p></div>' +
+      '<div><strong>Not a fit</strong><p>Cash payroll, no registration, refuses consent, or 14 days of silence. Park it, log why, revisit next term.</p></div>' +
+      '<div><strong>Unknown</strong><p>Do not leave it here. Unknown is how seven deals sat dead for weeks.</p></div></div></section>';
+  }
+
+  /* ------------------------------------------------------------------ NUMBERS */
+  function viewNumbers() {
+    const n = currentNumbers();
+    const b = state.baseline;
+    const q = state.targets.quarter;
+    const week = last7();
+    const wt = state.targets.weekly;
+    const modelRev = state.revPerActive || (n.ewa ? Math.round(n.revenue / n.ewa) : 900);
+    return '<header class="page-head"><div><div class="eyebrow">The only scoreboard</div><h1>Numbers</h1>' +
+      '<p>' + n.employees + ' employees, ' + naira(n.revenue) + ' a month. The job is more employees paid through ChequeIn, and more revenue from each one.</p></div>' +
+      '<div class="head-actions"><span class="pill">Baseline ' + esc(b.asOf) + "</span></div></header>" +
+
+      '<div class="kpi-grid">' +
+      kpi("Monthly revenue", naira(n.revenue), "live payrolls", "") +
+      kpi("Employees paid", num(n.employees), "through ChequeIn", "") +
+      kpi("Revenue / employee", naira(n.perEmployee), "target " + naira(q.revenuePerEmployee), n.perEmployee < q.revenuePerEmployee ? "warn" : "good") +
+      kpi("Live employers", String(n.live), "target " + q.employersLive, n.live < q.employersLive ? "warn" : "good") +
+      kpi("EWA users", pct(n.employees ? n.ewa / n.employees : b.ewaPenetration), "baseline 33%", "") +
+      kpi("Savings funded", pct(n.employees ? n.savings / n.employees : b.savingsRate), "baseline 8%", "bad") +
+      kpi("30-day retention", pct(b.retained30d / b.signups30d), "1 of 25 sign-ups", "bad") +
+      kpi("EWA repayment", (b.repayment * 100).toFixed(1) + "%", "verify definition", "bad") +
+      "</div>" +
+
+      '<div class="grid-two">' +
+      '<section class="card"><div class="card-head"><div><div class="eyebrow">The funnel, honestly</div><h2>Where it leaks</h2></div></div>' +
+      '<div class="funnel">' +
+      funnelRow("Employers signed", 11, 11, "11") +
+      funnelRow("Passed compliance", 4, 11, "4") +
+      funnelRow("Live payrolls", 3, 11, "3") +
+      funnelRow("Employees paid", 106, 106, "106") +
+      funnelRow("Using EWA", 35, 106, "33%") +
+      funnelRow("Funded savings", 8, 106, "8%") +
+      "</div>" +
+      '<p class="muted small">The biggest drop is not sign-up — it is activation. 106 people are paid through you and eight save. Fix that before adding more employers.</p></section>' +
+
+      '<section class="card"><div class="card-head"><div><div class="eyebrow">Direction</div><h2>Quarter target</h2></div><span class="pill">90 days</span></div>' +
+      progressRow("Live employers", n.live, q.employersLive) +
+      progressRow("Employees paid", n.employees, q.activeEmployees) +
+      progressRow("Revenue / employee", n.perEmployee, q.revenuePerEmployee) +
+      progressRow("Compliance pass rate", 0.36, q.compliancePass) +
+      progressRow("Activation (any product)", 0.33, q.activation) +
+      progressRow("Savings rate", 0.08, q.savingsRate) +
+      '<div class="callout">To hit ' + naira(q.activeEmployees * q.revenuePerEmployee) + " a month you need " + q.employersLive + " employers at about 50 staff each — and half of those staff using a product. The first number is sales. The second is activation.</div>" +
+      "</section></div>" +
+
+      '<section class="card model-card"><div class="card-head"><div><div class="eyebrow">Play with it</div><h2>Revenue model</h2></div><span class="pill">₦' + num(modelRev) + " / active user</span></div>" +
+      '<div class="model-grid">' +
+      '<div class="model-controls">' +
+      modelSlider("m-emp", "Employers", 1, 30, 8, "") +
+      modelSlider("m-staff", "Staff per employer", 5, 150, 50, "") +
+      modelSlider("m-act", "Activation rate", 10, 90, 50, "%") +
+      modelSlider("m-rev", "Revenue per active user", 200, 2000, modelRev, "₦", 50) +
+      "</div>" +
+      '<div class="model-out">' +
+      '<div class="model-big"><span>Monthly revenue</span><strong id="m-out-mrr">₦0</strong></div>' +
+      '<div class="model-sub three"><div><span>Employees paid</span><strong id="m-out-paid">0</strong></div>' +
+      '<div><span>Active users</span><strong id="m-out-active">0</strong></div>' +
+      '<div><span>Annual run-rate</span><strong id="m-out-arr">₦0</strong></div></div>' +
+      '<p class="muted small">Baseline: ' + num(n.employees) + ' paid employees, ' + num(n.ewa) + ' active users and ' + naira(n.revenue) + ' a month — about ' + naira(modelRev) + ' per active user.</p>' +
+      "</div></div></section>" +
+
+      '<div class="grid-two">' +
+      '<section class="card" id="scorecard"><div class="card-head"><div><div class="eyebrow">Last 7 days</div><h2>Weekly scorecard</h2></div><span class="pill">inputs</span></div>' +
+      '<div class="score-table">' +
+      scoreRow("WhatsApp sent", week.whatsapp, wt.whatsapp) +
+      scoreRow("Calls made", week.calls, wt.calls) +
+      scoreRow("Demos run", week.demos, wt.demos) +
+      scoreRow("Compliance packs", week.packs, wt.compliancePacks) +
+      "</div>" +
+      '<p class="muted small">Inputs are the only thing you control. If these are green for four weeks, the outputs follow.</p></section>' +
+
+      '<section class="card"><div class="card-head"><div><div class="eyebrow">Watch this</div><h2>Repayment warning</h2></div></div>' +
+      '<p class="muted">EWA repayment is reported at <strong>6.4%</strong>. If that means recovered ÷ due, EWA is not working and credit is not the next product — collections is. Confirm the definition with your partner bank this week, then track it weekly here.</p>' +
+      '<div class="callout danger">Do not market credit on a repayment number you cannot explain.</div></section></div>' +
+
+      '<section class="card"><div class="card-head"><div><div class="eyebrow">Next 90 days</div><h2>The plan</h2></div></div>' +
+      '<div class="phase-grid">' +
+      phase("Weeks 1–2", "Fix the gate, fill the list", ["Rename and triage the 7 failed employers", "Build 25 school targets with phone numbers", "Send the first 10 openers", "Run the Will’B’ staff session"], "25 targets · 7 triaged") +
+      phase("Weeks 3–6", "First new go-live", ["40 conversations · 8 demos", "3 compliance packs out", "1–2 new employers live", "First staff session at a new school"], "2 new live · 80 staff") +
+      phase("Weeks 7–12", "Activation proof", ["50% of staff on a product", "25% funding savings", "EWA recovery understood and ≥ 90%", "8 live employers · 400 employees"], "₦180k MRR") +
+      "</div></section>";
+  }
+
+  function kpi(label, value, sub, cls) {
+    return '<div class="kpi ' + (cls || "") + '"><span>' + esc(label) + "</span><strong>" + esc(value) + "</strong><em>" + esc(sub) + "</em></div>";
+  }
+  function funnelRow(label, value, max, display) {
+    return '<div class="funnel-row"><span class="f-label">' + esc(label) + "</span>" +
+      '<div class="f-bar"><span style="width:' + Math.max(2, Math.round((value / max) * 100)) + '%"></span></div>' +
+      "<strong>" + esc(display) + "</strong></div>";
+  }
+  function progressRow(label, value, target) {
+    const p = Math.min(100, Math.round((value / target) * 100));
+    return '<div class="progress-row"><div class="progress-top"><span>' + esc(label) + "</span><strong>" + p + "%</strong></div>" + progressBar(value, target) + "</div>";
+  }
+  function scoreRow(label, actual, target) {
+    const cls = actual >= target ? "good" : actual === 0 ? "bad" : "warn";
+    return '<div class="score-row"><span>' + esc(label) + "</span><strong class=\"" + cls + "\">" + actual + "</strong><em>/ " + target + "</em>" + progressBar(actual, target, cls) + "</div>";
+  }
+  function modelSlider(id, label, min, max, value, suffix, step) {
+    return '<label class="model-slider"><span>' + esc(label) + ' <strong id="' + id + '-label">' + (suffix === "₦" ? "₦" + num(value) : value + (suffix || "")) + "</strong></span>" +
+      '<input type="range" id="' + id + '" min="' + min + '" max="' + max + '" step="' + (step || 1) + '" value="' + value + '" data-model="' + id + '"></label>';
+  }
+  function phase(when, title, items, target) {
+    return '<div class="phase"><div class="phase-when">' + esc(when) + '</div><h3>' + esc(title) + "</h3><ul>" + items.map((i) => "<li>" + esc(i) + "</li>").join("") + '</ul><div class="phase-target">' + esc(target) + "</div></div>";
+  }
+
+  /* ------------------------------------------------------------------ DRAWER */
+  function waNumber(phone) {
+    let d = String(phone || "").replace(/[^\d]/g, "");
+    if (!d) return "";
+    if (d.charAt(0) === "0") d = "234" + d.slice(1);
+    return d.length >= 10 ? d : "";
+  }
+  function fillScript(text, emp) {
+    return String(text || "")
+      .replace(/\{contact\}/g, emp.contact || emp.name)
+      .replace(/\{employer\}/g, emp.name)
+      .replace(/\{name\}/g, emp.name);
+  }
+  function outreachLink(emp, na) {
+    if (!na) return "";
+    const phone = String(emp.phone || "").trim();
+    if (na.type === "whatsapp" && phone) {
+      const n = waNumber(phone);
+      if (!n) return "";
+      const body = na.script && CI.SCRIPTS[na.script] ? fillScript(CI.SCRIPTS[na.script].body, emp) : "";
+      return '<a class="ghost-btn wa-link" target="_blank" rel="noopener" href="https://wa.me/' + n + (body ? "?text=" + encodeURIComponent(body) : "") + '">Open WhatsApp</a>';
+    }
+    if (na.type === "call" && phone) {
+      return '<a class="ghost-btn" href="tel:' + esc(phone.replace(/[^\d+]/g, "")) + '">Call now</a>';
+    }
+    if (na.type === "email" && emp.email) {
+      const sc = na.script ? CI.SCRIPTS[na.script] : null;
+      const subject = sc && sc.subject ? fillScript(sc.subject, emp) : "Free payroll for " + emp.name;
+      const body = sc ? fillScript(sc.body, emp) : "";
+      return '<a class="ghost-btn" href="mailto:' + esc(emp.email) + "?subject=" + encodeURIComponent(subject) + "&amp;body=" + encodeURIComponent(body) + '">Compose email</a>';
+    }
+    return "";
+  }
+
+  function renderDrawer() {
+    const drawer = $("#drawer");
+    const emp = state.employers.find((e) => e.id === ui.drawer);
+    if (!emp) {
+      drawer.hidden = true;
+      drawer.dataset.empId = "";
+      $("#scrim").hidden = true;
+      document.body.classList.remove("locked");
+      return;
+    }
+    const keepScroll = drawer.dataset.empId === emp.id ? drawer.scrollTop : 0;
+    const st = complianceStatus(emp);
+    const next = nextStage(emp.stage);
+    const gate = gateTo(emp, next);
+    const missing = requiredMissing(emp);
+    const score = qualScore(emp);
+    const target = stage(emp.stage);
+    drawer.hidden = false;
+    drawer.dataset.empId = emp.id;
+    $("#scrim").hidden = false;
+    document.body.classList.add("locked");
+    drawer.innerHTML =
+      '<div class="drawer-head">' +
+      '<div><div class="eyebrow">' + esc(emp.segment || "Employer") + (emp.city ? " · " + esc(emp.city) : "") + "</div>" +
+      "<h2>" + esc(emp.name) + "</h2>" +
+      '<div class="badge-row">' + stageBadge(emp.stage) + complianceBadge(emp) + "</div></div>" +
+      '<button class="icon-btn" data-action="close-drawer" type="button" aria-label="Close">✕</button></div>' +
+      '<div class="drawer-body">' +
+
+      '<div class="drawer-kpis">' +
+      drawerKpi("Staff", num(emp.staffEstimate) || "—") +
+      drawerKpi("Employees paid", num(emp.metrics.employees)) +
+      drawerKpi("Revenue / mo", naira(emp.metrics.revenue)) +
+      drawerKpi("Compliance", missing.length ? missing.length + " missing" : "8 / 8") +
+      "</div>" +
+
+      '<section class="d-section next-section">' +
+      '<div class="d-title">Next action</div>' +
+      (emp.nextAction ?
+        '<div class="next-card"><div><div class="next-title">' + esc(emp.nextAction.title) + '</div><div class="muted small">' + esc(emp.nextAction.detail) + " · " + esc(dueLabel(emp.nextAction.due)) + "</div></div>" +
+        '<div class="next-btns"><button class="done-btn" data-action="complete" data-emp="' + esc(emp.id) + '" type="button">Done</button>' +
+        '<button class="snooze-btn" data-action="snooze" data-emp="' + esc(emp.id) + '" type="button">+1d</button></div></div>' +
+        '<div class="next-tools">' +
+        (emp.nextAction.script ? '<button class="ghost-btn script-jump" data-action="copy" data-script="' + esc(emp.nextAction.script) + '" type="button">Copy the script</button>' : "") +
+        outreachLink(emp, emp.nextAction) +
+        "</div>" :
+        '<div class="muted small">No next action. <button class="link-btn" data-action="restart" data-emp="' + esc(emp.id) + '" type="button">Restart the cadence</button></div>') +
+      "</section>" +
+
+      '<section class="d-section">' +
+      '<div class="d-title">Stage</div>' +
+      '<div class="stage-rail">' + stageOrder.map((s, i) => {
+        const cur = stageOrder.indexOf(emp.stage);
+        const cls = s === emp.stage ? "current" : i < cur ? "done" : "";
+        return '<span class="stage-node ' + cls + '">' + esc(stage(s).short) + "</span>";
+      }).join("") + "</div>" +
+      '<p class="muted small">' + esc(target.hint) + "</p>" +
+      (next ? '<button class="primary-btn wide" data-action="advance" data-emp="' + esc(emp.id) + '" ' + (gate.ok ? "" : "disabled") + ">Move to " + esc(stage(next).label) + "</button>" +
+        (gate.ok ? "" : '<p class="gate-note">' + esc(gate.message) + "</p>") : '<p class="gate-note">This employer is at the final stage.</p>') +
+      (emp.stage === "lost" ? '<button class="primary-btn wide" data-action="reopen" data-emp="' + esc(emp.id) + '" type="button">Reopen as lead</button>' : "") +
+      (emp.stage === "demo" || emp.stage === "qualified" ?
+        '<label class="check-line roomy"><input type="checkbox" data-field="qualification.demoDone" ' + (emp.qualification.demoDone ? "checked" : "") + '><span>Demo completed (unlocks compliance)</span></label>' : "") +
+      "</section>" +
+
+      '<section class="d-section">' +
+      '<div class="d-title">Contact &amp; details</div>' +
+      '<div class="form-grid">' +
+      dField(emp, "name", "Employer name") +
+      dField(emp, "contact", "Contact person") +
+      dField(emp, "role", "Role") +
+      dField(emp, "phone", "Phone / WhatsApp") +
+      dField(emp, "email", "Email") +
+      dField(emp, "city", "City / area") +
+      dField(emp, "segment", "Segment") +
+      dField(emp, "staffEstimate", "Staff estimate", "number") +
+      "</div>" +
+      '<label class="field"><span>Notes</span><textarea class="textarea small" rows="2" data-field="notes">' + esc(emp.notes || "") + "</textarea></label>" +
+      "</section>" +
+
+      '<section class="d-section">' +
+      '<div class="d-title">Qualification <span class="score ' + (score >= 7 ? "good" : "bad") + '">' + score + "/10</span></div>" +
+      '<div class="qual-grid">' +
+      '<label class="mini-field"><span>Staff on payroll</span><input type="number" min="0" data-qual="staffCount" value="' + esc(emp.qualification.staffCount == null ? "" : emp.qualification.staffCount) + '" placeholder="e.g. 45"></label>' +
+      '<label class="mini-field"><span>Monthly payroll (₦)</span><input type="number" min="0" data-qual="monthlyPayroll" value="' + esc(emp.qualification.monthlyPayroll == null ? "" : emp.qualification.monthlyPayroll) + '" placeholder="e.g. 4500000"></label>' +
+      "</div>" +
+      '<div class="bool-list">' + CI.QUALIFICATION.filter((q) => q.type === "bool").map((q) =>
+        '<div class="bool-row"><div><strong>' + esc(q.label) + '</strong><span class="muted tiny">' + esc(q.hint) + "</span></div>" +
+        '<div class="seg small"><button class="seg-btn ' + (emp.qualification[q.id] === true ? "active" : "") + '" data-qual="' + q.id + '" data-value="true" type="button">Yes</button>' +
+        '<button class="seg-btn ' + (emp.qualification[q.id] === false ? "active danger" : "") + '" data-qual="' + q.id + '" data-value="false" type="button">No</button></div></div>').join("") +
+      "</div>" +
+      '<p class="gate-note ' + (isQualified(emp) ? "good" : "") + '">' + (isQualified(emp) ? "Qualified — the demo gate is open." : "Needs 7/10, all answers, 10+ staff, transfer payroll, CAC/TIN and a decision maker before Demo.") + "</p>" +
+      "</section>" +
+
+      '<section class="d-section">' +
+      '<div class="d-title">Compliance <span class="score ' + (st === "passed" ? "good" : "bad") + '">' + (st === "passed" ? "Passed" : missing.length + " missing") + "</span></div>" +
+      '<div class="compliance-list">' + CI.REQUIRED_CHECKS.map((c) =>
+        '<label class="comp-item"><input type="checkbox" data-check="' + c.id + '" ' + (emp.compliance.checks[c.id] === true ? "checked" : "") + ">" +
+        "<span><strong>" + esc(c.label) + "</strong><em>" + esc(c.detail) + "</em></span></label>").join("") +
+      "</div>" +
+      '<details class="optional-checks"><summary>Optional checks</summary>' + CI.OPTIONAL_CHECKS.map((c) =>
+        '<label class="comp-item"><input type="checkbox" data-check="' + c.id + '" ' + (emp.compliance.checks[c.id] === true ? "checked" : "") + "><span><strong>" + esc(c.label) + "</strong><em>" + esc(c.detail) + "</em></span></label>").join("") + "</details>" +
+      '<label class="field"><span>Failure reason (if any)</span><input data-field="compliance.failReason" value="' + esc(emp.compliance.failReason || "") + '" placeholder="e.g. TIN name mismatch"></label>' +
+      (emp.compliance.fixable != null || st === "failed" ?
+        '<div class="fixable-row"><span class="muted small">Triage</span><div class="seg"><button class="seg-btn ' + (emp.compliance.fixable === true ? "active" : "") + '" data-action="fixable" data-emp="' + esc(emp.id) + '" data-value="yes" type="button">Fixable</button>' +
+        '<button class="seg-btn ' + (emp.compliance.fixable === false ? "active danger" : "") + '" data-action="fixable" data-emp="' + esc(emp.id) + '" data-value="no" type="button">Not a fit</button></div></div>' : "") +
+      '<button class="ghost-btn" data-action="copy" data-script="wa_docs" type="button">Copy document request</button>' +
+      "</section>" +
+
+      '<section class="d-section">' +
+      '<div class="d-title">Revenue &amp; activation</div>' +
+      '<div class="form-grid">' +
+      dField(emp, "metrics.employees", "Employees paid", "number") +
+      dField(emp, "metrics.ewaActive", "Using salary access", "number") +
+      dField(emp, "metrics.savingsFunded", "Funding savings", "number") +
+      dField(emp, "metrics.revenue", "Monthly revenue (₦)", "number") +
+      "</div>" +
+      '<p class="muted tiny">Revenue per employee: ' + (emp.metrics.employees ? naira(Math.round(emp.metrics.revenue / emp.metrics.employees)) : "—") + "</p>" +
+      "</section>" +
+
+      '<section class="d-section">' +
+      '<div class="d-title">Activity</div>' +
+      '<form class="note-form" data-note="' + esc(emp.id) + '"><input name="note" placeholder="Add a note — what was said?" autocomplete="off"><button class="primary-btn" type="submit">Add</button></form>' +
+      '<div class="activity">' + (emp.activity && emp.activity.length ? emp.activity.slice(0, 12).map((a) =>
+        '<div class="activity-item"><span class="act-dot ' + esc(a.type) + '"></span><div><div>' + esc(a.text) + '</div><div class="muted tiny">' + esc(shortDate(a.date)) + "</div></div></div>").join("") :
+        '<p class="muted small">No activity yet.</p>') + "</div>" +
+      "</section>" +
+
+      '<div class="drawer-foot"><button class="ghost-btn danger-text" data-action="delete" data-emp="' + esc(emp.id) + '" type="button">Delete employer</button>' +
+      '<span class="muted tiny">Changes save automatically.</span></div>' +
+      "</div>";
+    drawer.scrollTop = keepScroll;
+  }
+  function drawerKpi(label, value) {
+    return '<div><span>' + esc(label) + "</span><strong>" + esc(value) + "</strong></div>";
+  }
+  function dField(emp, path, label, type) {
+    const value = path.split(".").reduce((o, k) => (o == null ? o : o[k]), emp);
+    return '<label class="field"><span>' + esc(label) + '</span><input type="' + (type || "text") + '" data-field="' + path + '" value="' + esc(value == null ? "" : value) + '"></label>';
+  }
+
+  /* ------------------------------------------------------------------ render */
+  const ROUTES = { today: viewToday, pipeline: viewPipeline, compliance: viewCompliance, playbook: viewPlaybook, numbers: viewNumbers };
+
+  function currentRoute() {
+    const h = (location.hash || "#/today").replace(/^#\/?/, "");
+    return ROUTES[h] ? h : "today";
+  }
+
+  function render() {
+    const route = currentRoute();
+    if (ui.route !== route) {
+      ui.route = route;
+      window.scrollTo(0, 0);
+    }
+    const view = $("#view");
+    view.innerHTML = ROUTES[route]();
+    $$("#nav .nav-item").forEach((a) => a.classList.toggle("active", a.dataset.route === route));
+    $("#crumb").textContent = { today: "Today", pipeline: "Pipeline", compliance: "Compliance gate", playbook: "Playbook", numbers: "Numbers" }[route];
+    $("#week-chip").textContent = "Week " + isoWeek(new Date());
+    if (route === "numbers") modelUpdate();
+    if (route === "pipeline") {
+      const s = $("#pipe-search");
+      if (s) s.addEventListener("input", filterBoard);
+    }
+    navCounts();
+    renderDrawer();
+    $("#sidebar").classList.remove("open");
+    if (SYNC.enabled) updateSyncUI();
+  }
+
+  function navCounts() {
+    const acts = allActions();
+    const due = acts.filter((a) => diffDays(a.due, today()) <= 0).length;
+    const active = state.employers.filter((e) => e.stage !== "lost").length;
+    const failed = state.employers.filter((e) => complianceStatus(e) === "failed" && e.compliance.fixable == null).length;
+    $("#nav-due").textContent = due || "";
+    $("#nav-pipeline").textContent = active || "";
+    $("#nav-compliance").textContent = failed || "";
+    const n = currentNumbers();
+    $("#sidebar-rev").textContent = naira(n.revenue);
+    $("#sidebar-rev-meta").textContent = "per month · " + num(n.employees) + " employees";
+  }
+
+  function filterBoard(e) {
+    const q = e.target.value.toLowerCase().trim();
+    $$(".employer-card").forEach((c) => {
+      c.style.display = !q || (c.dataset.search || "").includes(q) ? "" : "none";
+    });
+  }
+
+  function modelUpdate() {
+    const emp = Number(($("#m-emp") || {}).value || 0);
+    const staff = Number(($("#m-staff") || {}).value || 0);
+    const act = Number(($("#m-act") || {}).value || 0);
+    const rev = Number(($("#m-rev") || {}).value || 0);
+    if (!$("#m-out-mrr")) return;
+    const paid = emp * staff;
+    const active = Math.round(paid * (act / 100));
+    const mrr = active * rev;
+    $("#m-out-mrr").textContent = naira(mrr);
+    $("#m-out-paid").textContent = num(paid);
+    $("#m-out-active").textContent = num(active);
+    $("#m-out-arr").textContent = naira(mrr * 12);
+    const labels = { "m-emp": emp, "m-staff": staff, "m-act": act + "%", "m-rev": "₦" + num(rev) };
+    Object.keys(labels).forEach((k) => {
+      const el = document.getElementById(k + "-label");
+      if (el) el.textContent = labels[k];
+    });
+  }
+
+  /* ------------------------------------------------------------------ sheets */
+  function openAdd(open) {
+    ui.addOpen = open;
+    $("#add-sheet").hidden = !open;
+    $("#add-scrim").hidden = !open;
+    document.body.classList.toggle("locked", open || !!ui.drawer);
+    if (open) setTimeout(() => { const i = $("#add-form input[name=name]"); if (i) i.focus(); }, 50);
+  }
+  function openBulk(open) {
+    ui.bulkOpen = open;
+    $("#bulk-sheet").hidden = !open;
+    $("#add-scrim").hidden = !open;
+    document.body.classList.toggle("locked", open || !!ui.drawer);
+  }
+  function openSettings(open) {
+    ui.settingsOpen = open;
+    $("#settings-sheet").hidden = !open;
+    $("#add-scrim").hidden = !open;
+    document.body.classList.toggle("locked", open || !!ui.drawer);
+    if (open) $("#rev-per-emp").value = state.revPerEmployee;
+  }
+  function closeSheets() {
+    openAdd(false); openBulk(false); openSettings(false);
+  }
+
+  function addEmployer(data) {
+    const id = "e_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
+    const emp = {
+      id: id,
+      name: data.name,
+      segment: data.segment || "Other",
+      city: data.city || "",
+      contact: data.contact || "",
+      role: data.role || "",
+      phone: data.phone || "",
+      email: "",
+      source: data.source || "",
+      staffEstimate: Number(data.staff) || 0,
+      stage: "lead",
+      createdAt: today(),
+      qualification: { staffCount: Number(data.staff) || null, monthlyPayroll: null, paidByTransfer: null, decisionMaker: null, registered: null, noDeductions: null, consentPossible: null, demoDone: false },
+      compliance: { checks: CI.blankChecks(), notes: "", failReason: "", fixable: null },
+      metrics: { employees: 0, ewaActive: 0, savingsFunded: 0, revenue: 0 },
+      nextAction: data.startSequence ? CI.stepAction("school", 0, data) : null,
+      activity: [{ date: today(), type: "note", text: "Added to pipeline" + (data.source ? " · " + data.source : "") }],
+      notes: ""
+    };
+    state.employers.push(emp);
+    save();
+    render();
+    toast(data.startSequence ? "Added. First WhatsApp is in Today." : "Added to pipeline.");
+  }
+
+  function parseRows(text) {
+    return text.split(/\n+/).map((line) => line.trim()).filter(Boolean).map((line) => {
+      const parts = line.split(",").map((p) => p.trim());
+      return { name: parts[0], contact: parts[1] || "", phone: parts[2] || "", staff: parts[3] || "", city: parts[4] || "", segment: "School" };
+    }).filter((r) => r.name);
+  }
+
+  /* ------------------------------------------------------------------ toast */
+  let toastTimer = null;
+  function toast(msg) {
+    const el = $("#toast");
+    el.textContent = msg;
+    el.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove("show"), 4200);
+  }
+
+  function copyText(text) {
+    const done = () => toast("Copied to clipboard.");
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+    } else fallbackCopy(text, done);
+  }
+  function fallbackCopy(text, done) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); done(); } catch (e) { toast("Select the text and copy manually."); }
+    ta.remove();
+  }
+
+  /* ------------------------------------------------------------------ events */
+  document.addEventListener("click", function (e) {
+    const qualBtn = e.target.closest("[data-qual][data-value]");
+    if (qualBtn) {
+      const qEmp = state.employers.find((x) => x.id === ui.drawer);
+      if (qEmp) {
+        qEmp.qualification[qualBtn.dataset.qual] = qualBtn.dataset.value === "true";
+        save();
+        render();
+      }
+      return;
+    }
+    const t = e.target.closest("[data-action]");
+    if (!t) {
+      if (e.target.classList && e.target.classList.contains("scrim")) { closeDrawer(); closeSheets(); }
+      return;
+    }
+    const act = t.dataset.action;
+    const empId = t.dataset.emp;
+    const emp = empId ? state.employers.find((x) => x.id === empId) : null;
+
+    if (act === "goto") { location.hash = "#/" + t.dataset.route; return; }
+    if (act === "open-add") { openAdd(true); return; }
+    if (act === "open-bulk") { openBulk(true); return; }
+    if (act === "close-drawer") { closeDrawer(); return; }
+    if (act === "open") { ui.drawer = empId; renderDrawer(); return; }
+    if (act === "open-task") {
+      const task = state.tasks.find((x) => x.id === t.dataset.task);
+      if (task && task.route) location.hash = "#/" + task.route;
+      if (task && task.anchor) setTimeout(() => { const el = document.getElementById(task.anchor); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); }, 80);
+      return;
+    }
+    if (act === "complete" && emp) { completeEmployerAction(emp); return; }
+    if (act === "snooze" && emp) { snoozeAction(emp); return; }
+    if (act === "restart" && emp) { restartCadence(emp); return; }
+    if (act === "advance" && emp) { advance(emp); return; }
+    if (act === "reopen" && emp) {
+      emp.stage = "lead";
+      if (!emp.nextAction) emp.nextAction = CI.stepAction("school", 0, emp);
+      pushActivity(emp, "stage", "Reopened");
+      save(); render(); toast("Reopened as a lead.");
+      return;
+    }
+    if (act === "delete" && emp) {
+      if (confirm("Delete " + emp.name + "? This cannot be undone.")) {
+        state.employers = state.employers.filter((x) => x.id !== emp.id);
+        ui.drawer = null; save(); render(); toast("Employer deleted.");
+      }
+      return;
+    }
+    if (act === "fixable" && emp) {
+      const v = t.dataset.value;
+      emp.compliance.fixable = v === "yes" ? true : v === "no" ? false : null;
+      if (v === "no") {
+        emp.stage = "lost";
+        emp.nextAction = null;
+        pushActivity(emp, "stage", "Marked not a fit · " + (emp.compliance.failReason || "compliance"));
+        toast("Parked as not a fit. It moves to Lost.");
+      } else {
+        emp.nextAction = CI.stepAction("recovery", 1, emp);
+        pushActivity(emp, "note", "Marked fixable — fix list is the next step");
+        toast("Fixable. Send the fix list today.");
+      }
+      save(); render(); return;
+    }
+    if (act === "copy") {
+      const s = CI.SCRIPTS[t.dataset.script];
+      if (s) copyText(s.subject ? "Subject: " + s.subject + "\n\n" + s.body : s.body);
+      return;
+    }
+    if (act === "copy-text") { copyText(t.dataset.text); return; }
+    if (act === "tab") { ui.tab = t.dataset.tab; render(); return; }
+    if (act === "log") {
+      const m = t.dataset.metric;
+      const d = t.dataset.delta;
+      const l = logToday();
+      l[m] = Math.max(0, (Number(l[m]) || 0) + Number(d));
+      save();
+      render();
+      return;
+    }
+    if (act === "checklist") {
+      const k = t.dataset.key;
+      state.checklist[k] = t.checked;
+      save();
+      render();
+      return;
+    }
+    if (act === "complete-task") {
+      const task = state.tasks.find((x) => x.id === t.dataset.task);
+      if (task) { task.done = true; save(); render(); toast("Task done."); }
+      return;
+    }
+    if (act === "snooze-task") {
+      const task = state.tasks.find((x) => x.id === t.dataset.task);
+      if (task) { task.due = addDays(today(), 1); save(); render(); toast("Snoozed to tomorrow."); }
+      return;
+    }
+    if (act === "quick-add") { openAdd(true); return; }
+  });
+
+  document.addEventListener("change", function (e) {
+    const el = e.target;
+    if (el.matches("[data-field]")) {
+      const emp = state.employers.find((x) => x.id === ui.drawer);
+      if (!emp) return;
+      const path = el.dataset.field.split(".");
+      let obj = emp;
+      for (let i = 0; i < path.length - 1; i++) obj = obj[path[i]];
+      let val = el.type === "number" ? (el.value === "" ? 0 : Number(el.value)) : el.value;
+      if (el.type === "checkbox") val = el.checked;
+      obj[path[path.length - 1]] = val;
+      save();
+      render();
+      return;
+    }
+    if (el.matches("[data-check]")) {
+      const emp = state.employers.find((x) => x.id === ui.drawer);
+      if (!emp) return;
+      emp.compliance.checks[el.dataset.check] = el.checked;
+      if (compliancePassed(emp)) emp.compliance.failReason = "";
+      save();
+      render();
+      return;
+    }
+    if (el.matches("[data-qual]")) {
+      const emp = state.employers.find((x) => x.id === ui.drawer);
+      if (!emp) return;
+      const q = el.dataset.qual;
+      const v = el.dataset.value;
+      emp.qualification[q] = q === "staffCount" || q === "monthlyPayroll" ? (el.value === "" ? null : Number(el.value)) : v === "true";
+      if (q === "staffCount" && !emp.staffEstimate) emp.staffEstimate = Number(el.value) || 0;
+      save();
+      render();
+      return;
+    }
+    if (el.id === "rev-per-emp") {
+      state.revPerEmployee = Number(el.value) || 300;
+      save();
+      return;
+    }
+  });
+
+  document.addEventListener("input", function (e) {
+    if (e.target.matches("[data-model]")) {
+      if (e.target.id === "m-rev") state.revPerActive = Number(e.target.value) || 900;
+      modelUpdate();
+    }
+    if (e.target.id === "rev-per-emp") {
+      state.revPerEmployee = Number(e.target.value) || 300;
+      save();
+    }
+  });
+
+  document.addEventListener("submit", function (e) {
+    if (e.target.id === "add-form") {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      const data = Object.fromEntries(fd.entries());
+      if (!String(data.name || "").trim()) return;
+      data.startSequence = fd.get("startSequence") === "on";
+      addEmployer(data);
+      e.target.reset();
+      openAdd(false);
+      location.hash = "#/pipeline";
+      return;
+    }
+    if (e.target.id === "bulk-form") {
+      e.preventDefault();
+      const rows = parseRows(new FormData(e.target).get("rows") || "");
+      if (!rows.length) { toast("Add at least one name."); return; }
+      rows.forEach((r) => addEmployer(Object.assign({}, r, { startSequence: true, segment: r.segment })));
+      e.target.reset();
+      openBulk(false);
+      location.hash = "#/pipeline";
+      toast(rows.length + " employers added. First WhatsApps are in Today.");
+      return;
+    }
+    if (e.target.matches("[data-note]")) {
+      e.preventDefault();
+      const emp = state.employers.find((x) => x.id === e.target.dataset.note);
+      const input = e.target.querySelector("input[name=note]");
+      if (!emp || !input.value.trim()) return;
+      pushActivity(emp, "note", input.value.trim());
+      save();
+      input.value = "";
+      renderDrawer();
+      return;
+    }
+  });
+
+  function closeDrawer() {
+    ui.drawer = null;
+    renderDrawer();
+  }
+
+
+  /* ------------------------------------------------------------------ shared workspace */
+  function timeAgo(iso) {
+    if (!iso) return "just now";
+    const t = new Date(iso).getTime();
+    if (!t) return "just now";
+    const sec = Math.max(1, Math.round((Date.now() - t) / 1000));
+    if (sec < 60) return sec + "s ago";
+    if (sec < 3600) return Math.round(sec / 60) + "m ago";
+    if (sec < 86400) return Math.round(sec / 3600) + "h ago";
+    return Math.round(sec / 86400) + "d ago";
+  }
+
+  function syncSummary() {
+    if (SYNC.status === "shared") {
+      return "Shared workspace · last saved " + (SYNC.lastBy ? "by " + SYNC.lastBy + " " : "") + timeAgo(SYNC.lastAt);
+    }
+    if (SYNC.status === "saving") return "Saving to the shared workspace…";
+    if (SYNC.status === "offline") return "Offline — changes are saved on this device and will sync when you reconnect.";
+    if (SYNC.status === "conflict") return "A teammate saved newer changes. Choose which version to keep.";
+    if (SYNC.status === "connecting") return "Connecting to the shared workspace…";
+    return "Local only — changes stay in this browser.";
+  }
+
+  function setSyncStatus(status) {
+    SYNC.status = status;
+    updateSyncUI();
+  }
+
+  function updateSyncUI() {
+    const pill = $("#sync-pill");
+    if (!pill) return;
+    const labels = { connecting: "Connecting", shared: "Shared", saving: "Saving", offline: "Offline", conflict: "Conflict", local: "Local" };
+    pill.className = "sync-pill " + (labels[SYNC.status] ? SYNC.status : "local");
+    const text = $(".sync-text", pill);
+    if (text) text.textContent = labels[SYNC.status] || "Local";
+    pill.title = syncSummary();
+  }
+
+  function buildSyncUI() {
+    const topbar = $(".topbar");
+    if (!topbar) return;
+    const banner = document.createElement("div");
+    banner.id = "sync-banner";
+    banner.className = "sync-banner";
+    banner.hidden = true;
+    topbar.parentNode.insertBefore(banner, topbar.nextSibling);
+    banner.addEventListener("click", function (e) {
+      const btn = e.target.closest("[data-sync]");
+      if (!btn) return;
+      if (btn.dataset.sync === "theirs") {
+        if (SYNC.conflict) applyRemote(SYNC.conflict);
+        SYNC.conflict = null;
+        hideConflict();
+        setSyncStatus("shared");
+        toast("Loaded the shared version.");
+      } else {
+        SYNC.conflict = null;
+        hideConflict();
+        setSyncStatus("saving");
+        syncPush(true);
+        toast("Replacing the shared version with yours.");
+      }
+    });
+    const right = $(".topbar-right");
+    if (right) {
+      const pill = document.createElement("button");
+      pill.id = "sync-pill";
+      pill.className = "sync-pill local";
+      pill.type = "button";
+      pill.innerHTML = '<span class="sync-dot"></span><span class="sync-text">Local</span>';
+      right.insertBefore(pill, right.firstChild);
+      pill.addEventListener("click", function () {
+        if (SYNC.status === "local" || !SYNC.code) showSyncGate("");
+        else toast(syncSummary());
+      });
+    }
+    const gate = document.createElement("div");
+    gate.id = "sync-gate";
+    gate.className = "sync-gate";
+    gate.hidden = true;
+    gate.innerHTML =
+      '<div class="sync-gate-card">' +
+      '<div class="sync-brand"><span class="brand-mark">C</span><div><strong>ChequeIn</strong><em>Sales OS</em></div></div>' +
+      '<div class="eyebrow">Shared workspace</div>' +
+      "<h2>Enter the team code</h2>" +
+      '<p>This workspace is shared with the ChequeIn sales team. The code keeps the pipeline private — ask your manager for it.</p>' +
+      '<form id="sync-form">' +
+      '<label class="field"><span>Team code</span><input name="code" autocomplete="off" required placeholder="Team code"></label>' +
+      '<label class="field"><span>Your name <em class="muted">(optional)</em></span><input name="name" autocomplete="off" placeholder="e.g. Tunde"></label>' +
+      '<p class="sync-error" id="sync-error" hidden></p>' +
+      '<button class="primary-btn wide" type="submit">Open shared workspace</button>' +
+      "</form>" +
+      '<button class="link-btn sync-offline" type="button">Use this device only</button>' +
+      "</div>";
+    document.body.appendChild(gate);
+    const form = $("#sync-form", gate);
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const code = String(form.code.value || "").trim();
+      const name = String(form.name.value || "").trim();
+      if (!code) return;
+      SYNC.code = code;
+      SYNC.editor = name;
+      try {
+        localStorage.setItem("chequein-team-code", code);
+        localStorage.setItem("chequein-editor", name);
+        localStorage.removeItem("chequein-sync-off");
+      } catch (err) { /* ignore */ }
+      gate.hidden = true;
+      document.body.classList.remove("locked");
+      syncConnect();
+    });
+    $(".sync-offline", gate).addEventListener("click", function () {
+      try { localStorage.setItem("chequein-sync-off", "1"); } catch (err) { /* ignore */ }
+      SYNC.code = "";
+      SYNC.ready = false;
+      gate.hidden = true;
+      document.body.classList.remove("locked");
+      setSyncStatus("local");
+      toast("Using this device only. Your changes stay in this browser.");
+    });
+    updateSyncUI();
+  }
+
+  function showSyncGate(message) {
+    const gate = $("#sync-gate");
+    if (!gate) return;
+    gate.hidden = false;
+    document.body.classList.add("locked");
+    const err = $("#sync-error", gate);
+    if (err) {
+      err.textContent = message || "";
+      err.hidden = !message;
+    }
+    const input = $('#sync-form input[name="code"]', gate);
+    if (input) {
+      input.value = SYNC.code || "";
+      setTimeout(function () { input.focus(); }, 40);
+    }
+  }
+
+  function invalidCode(message) {
+    SYNC.code = "";
+    SYNC.ready = false;
+    try { localStorage.removeItem("chequein-team-code"); } catch (err) { /* ignore */ }
+    setSyncStatus("local");
+    showSyncGate(message);
+  }
+
+  function syncInit() {
+    if (!SYNC.enabled) return;
+    buildSyncUI();
+    let off = false;
+    try { off = localStorage.getItem("chequein-sync-off") === "1"; } catch (err) { /* ignore */ }
+    if (off) { setSyncStatus("local"); return; }
+    if (!SYNC.code) { showSyncGate(""); return; }
+    syncConnect();
+  }
+
+  function syncConnect() {
+    setSyncStatus("connecting");
+    fetch("/api/state", { headers: { "x-team-code": SYNC.code }, cache: "no-store" })
+      .then(function (r) {
+        if (r.status === 401) {
+          invalidCode("That code wasn't recognised. Check it with your manager.");
+          return null;
+        }
+        if (r.status === 404) {
+          const type = r.headers.get("content-type") || "";
+          if (type.indexOf("application/json") === -1) {
+            setSyncStatus("offline");
+            toast("Shared sync is not available on this host. Changes stay on this device.");
+            return null;
+          }
+          SYNC.ready = true;
+          setSyncStatus("shared");
+          startPolling();
+          syncPush(true);
+          return null;
+        }
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data) return;
+        SYNC.ready = true;
+        applyRemote(data);
+        setSyncStatus("shared");
+        startPolling();
+      })
+      .catch(function () {
+        SYNC.ready = true;
+        setSyncStatus("offline");
+        startPolling();
+      });
+  }
+
+  function applyRemote(data) {
+    if (!data || !data.state || !Array.isArray(data.state.employers)) return false;
+    SYNC.applying = true;
+    state = loadFrom(data.state);
+    SYNC.version = Number(data.version) || 0;
+    SYNC.lastAt = data.updatedAt || null;
+    SYNC.lastBy = data.updatedBy || "";
+    SYNC.dirty = false;
+    SYNC.applying = false;
+    persistLocal();
+    render();
+    updateSyncUI();
+    return true;
+  }
+
+  function syncQueue() {
+    if (!SYNC.enabled || !SYNC.ready || SYNC.status === "conflict") return;
+    clearTimeout(SYNC.timer);
+    if (SYNC.status !== "offline") setSyncStatus("saving");
+    SYNC.timer = setTimeout(function () { syncPush(false); }, 700);
+  }
+
+  function syncPush(force) {
+    if (!SYNC.enabled || !SYNC.ready) return;
+    if (SYNC.pushing) { SYNC.queued = true; return; }
+    if (SYNC.status === "conflict" && !force) return;
+    SYNC.pushing = true;
+    SYNC.queued = false;
+    if (!force) setSyncStatus("saving");
+    fetch("/api/state", {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-team-code": SYNC.code },
+      body: JSON.stringify({ state: state, baseVersion: SYNC.version, editor: SYNC.editor, force: !!force })
+    })
+      .then(function (r) {
+        if (r.status === 401) {
+          invalidCode("Your session expired. Enter the team code again.");
+          return null;
+        }
+        if (r.status === 409) {
+          return r.json().then(function (data) {
+            if (SYNC.version === 0 && !SYNC.dirty) {
+              applyRemote(data);
+              setSyncStatus("shared");
+              return null;
+            }
+            SYNC.conflict = data;
+            setSyncStatus("conflict");
+            showConflict(data);
+            return null;
+          });
+        }
+        if (!r.ok) throw new Error("HTTP " + r.status);
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data || data.error) return;
+        const pending = SYNC.queued;
+        SYNC.version = Number(data.version) || SYNC.version + 1;
+        SYNC.lastAt = data.updatedAt || new Date().toISOString();
+        SYNC.lastBy = data.updatedBy || SYNC.editor || "";
+        if (!pending) SYNC.dirty = false;
+        SYNC.failures = 0;
+        hideConflict();
+        setSyncStatus("shared");
+      })
+      .catch(function () {
+        SYNC.failures += 1;
+        setSyncStatus("offline");
+        if (SYNC.dirty) {
+          setTimeout(function () { syncPush(false); }, Math.min(15000, 3000 * SYNC.failures));
+        }
+      })
+      .finally(function () {
+        SYNC.pushing = false;
+        if (SYNC.queued && SYNC.dirty && SYNC.status !== "conflict") {
+          setTimeout(function () { syncPush(false); }, 50);
+        }
+      });
+  }
+
+  function showConflict(data) {
+    const banner = $("#sync-banner");
+    if (!banner) return;
+    const who = data && data.updatedBy ? esc(data.updatedBy) : "A teammate";
+    const when = data && data.updatedAt ? timeAgo(data.updatedAt) : "just now";
+    banner.innerHTML =
+      '<div class="sync-banner-inner"><div><strong>' + who + " saved a newer version</strong>" +
+      "<span>Last saved " + esc(when) + '. “Keep mine” replaces their version; “Load theirs” discards yours.</span></div>' +
+      '<div class="sync-actions"><button class="ghost-btn" data-sync="theirs" type="button">Load theirs</button>' +
+      '<button class="primary-btn" data-sync="mine" type="button">Keep mine</button></div></div>';
+    banner.hidden = false;
+  }
+
+  function hideConflict() {
+    const banner = $("#sync-banner");
+    if (banner) {
+      banner.hidden = true;
+      banner.innerHTML = "";
+    }
+  }
+
+  function startPolling() {
+    if (!SYNC.pollStarted) {
+      SYNC.pollStarted = true;
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) pollRemote();
+      });
+      window.addEventListener("online", function () {
+        pollRemote();
+        if (SYNC.dirty) syncPush(false);
+      });
+    }
+    if (SYNC.pollTimer) clearInterval(SYNC.pollTimer);
+    SYNC.pollTimer = setInterval(pollRemote, 12000);
+  }
+
+  function pollRemote() {
+    if (!SYNC.enabled || !SYNC.ready || SYNC.pushing || document.hidden) return;
+    if (SYNC.status === "saving" || SYNC.status === "conflict") return;
+    fetch("/api/state", { headers: { "x-team-code": SYNC.code }, cache: "no-store" })
+      .then(function (r) {
+        if (r.status === 401) {
+          invalidCode("Your session expired. Enter the team code again.");
+          return null;
+        }
+        if (!r.ok) return null;
+        return r.json();
+      })
+      .then(function (data) {
+        if (!data) return;
+        if (Number(data.version) > SYNC.version) {
+          if (SYNC.dirty) {
+            SYNC.conflict = data;
+            setSyncStatus("conflict");
+            showConflict(data);
+          } else {
+            applyRemote(data);
+            setSyncStatus("shared");
+          }
+        } else if (SYNC.status === "offline" && !SYNC.dirty) {
+          setSyncStatus("shared");
+        }
+      })
+      .catch(function () {
+        if (SYNC.status === "shared") setSyncStatus("offline");
+      });
+  }
+
+  window.addEventListener("hashchange", render);
+
+  /* ------------------------------------------------------------------ boot */
+  function boot() {
+    $$("#nav [data-icon]").forEach((s) => { s.innerHTML = icon(s.dataset.icon); });
+    $("#btn-quick-add").addEventListener("click", () => openAdd(true));
+    $("#btn-settings-sheet").addEventListener("click", () => openSettings(true));
+    $("#btn-menu").addEventListener("click", () => $("#sidebar").classList.toggle("open"));
+    $("#scrim").addEventListener("click", closeDrawer);
+    $("#add-scrim").addEventListener("click", () => { closeSheets(); });
+    $$("[data-close]").forEach((b) => b.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      closeSheets();
+    }));
+    $("#btn-export").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "chequein-sales-os-" + today() + ".json";
+      a.click();
+      URL.revokeObjectURL(a.href);
+      toast("Backup downloaded.");
+    });
+    $("#file-import").addEventListener("change", (e) => {
+      const f = e.target.files[0];
+      if (!f) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          if (!data.employers) throw new Error("bad file");
+          state = loadFrom(data);
+          save(); render(); openSettings(false); toast("Backup imported.");
+        } catch (err) { toast("That file doesn't look like a backup."); }
+      };
+      reader.readAsText(f);
+    });
+    $("#btn-reset").addEventListener("click", () => {
+      if (!confirm("Reset everything to the seeded baseline? Your current pipeline will be replaced.")) return;
+      state = CI.seed();
+      save(); render(); openSettings(false); toast("Reset to baseline.");
+    });
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") { closeDrawer(); closeSheets(); }
+    });
+    const tab = new URLSearchParams(location.search).get("tab");
+    if (tab && ["pitch", "qualify", "outreach", "activate", "objections", "recovery"].includes(tab)) ui.tab = tab;
+    render();
+    syncInit();
+  }
+
+  function loadFrom(data) {
+    const s = data;
+    s.tasks = s.tasks || [];
+    s.log = s.log || {};
+    s.checklist = s.checklist || {};
+    s.revPerActive = s.revPerActive || 900;
+    s.employers.forEach((e) => {
+      e.activity = e.activity || [];
+      e.metrics = e.metrics || { employees: 0, ewaActive: 0, savingsFunded: 0, revenue: 0 };
+      e.compliance = e.compliance || {};
+      e.compliance.checks = e.compliance.checks || CI.blankChecks();
+      e.qualification = e.qualification || {};
+    });
+    return s;
+  }
+
+  boot();
+})();
+
+</script>
+</body>
+</html>
