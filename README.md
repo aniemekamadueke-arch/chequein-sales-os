@@ -2,9 +2,10 @@
 
 A local, offline sales system for ChequeIn's free-payroll model. It is built around one idea: **free payroll is the door, employee activation is the revenue.**
 
-Open **`ChequeIn-Sales-OS.html`** (single file, no install, works offline) or `index.html` with the other files in this folder.
+**Live:** https://aniemekamadueke-arch.github.io/chequein-sales-os/
+**Repo:** https://github.com/aniemekamadueke-arch/chequein-sales-os
 
-Data is saved in your browser via `localStorage`. Use **Settings & data** to export a JSON backup, import one, or reset to the seeded baseline.
+Open the live link on any device, or open **`ChequeIn-Sales-OS.html`** locally (single file, no install, works offline). The GitHub Pages build is the static version: each visitor's data is saved in their own browser via `localStorage`. Use **Settings & data** to export a JSON backup, import one, or reset to the seeded baseline.
 
 ---
 
@@ -60,9 +61,17 @@ These are enforced in the record drawer, not just written in a doc.
 
 ## Hosting
 
-- **`docs/index.html`** is the static GitHub Pages build. It is public and permanent, but each visitor's data stays in their own browser.
-- **`dist/index.html` + `netlify/functions/state.mjs`** is the shared build: a team code gate, version-checked sync and Netlify Blobs storage. It needs a host that allows public functions (set `TEAM_CODE` in the host environment). The Netlify project is wired; its project visibility must be set to **Public** for visitors to reach it.
+- **GitHub Pages** serves `docs/index.html` at https://aniemekamadueke-arch.github.io/chequein-sales-os/. This is the public, permanent, per-device build.
+- **`dist/index.html` + `netlify/functions/state.mjs`** is the shared build: a team code gate, version-checked sync and Netlify Blobs storage. It requires a host that allows public functions and a `TEAM_CODE` environment variable. The Netlify project is deployed, but its project visibility is set to **Private**, so visitors currently hit a Netlify login wall; set **Project visibility → Public** in the Netlify dashboard to enable the shared version.
 - Never commit the team code. It lives in the host's environment variables, never in this repo.
+
+### Updating the public site
+
+```bash
+python3 build.py
+cp ChequeIn-Sales-OS.html docs/index.html
+git add docs && git commit -m "Update app" && git push
+```
 
 ## Limits
 
